@@ -1,20 +1,20 @@
-/* 공통 변수 : 색상, 배경, 그림자 값*/
+﻿/* 공통 변수 : 색상, 배경, 그림자 값 */
 :root {
   --ink: #14213d;
   --muted: #475369;
   --subtle-text: #465367;
-  --paper: #f7f8fb;
+  --paper: #f3f6fa;
   --white: #fff;
-  --panel: #fff;
-  --soft-panel: #fbfcff;
-  --line: #dfe4ee;
-  --chip: #edf2ff;
+  --panel: #ffffff;
+  --soft-panel: #f4f7fb;
+  --line: #d7dfeb;
+  --chip: #e8f0fb;
   --scroll-thumb: #b9c6dc;
   --blue: #245ea8;
   --green: #0f8b6f;
   --coral: #e45b43;
   --gold: #d59a15;
-  --surface-gradient: linear-gradient(135deg, #fff 0%, #f3f8fc 100%);
+  --surface-gradient: linear-gradient(135deg, #ffffff 0%, #edf4fa 100%);
   --page-gradient: linear-gradient(135deg, #edf5fb 0%, #c7deef 100%);
   --shadow: 0 18px 42px rgba(20, 33, 61, 0.04);
   --radius-panel: 10px;
@@ -34,12 +34,12 @@
   --checklist-max: 320px;
 }
 
-/* 전체 요소 : 박스 크기 계산 방식*/
+/* ?꾩껜 ?붿냼 : 諛뺤뒪 ?ш린 怨꾩궛 諛⑹떇*/
 * {
   box-sizing: border-box;
 }
 
-/* 기본 화면 : 전체 글꼴, 글자색, 배경색*/
+/* 기본 화면 : 전체 글꼴, 글자색, 배경색 */
 body {
   margin: 0;
   font-family: "Noto Sans KR", Arial, sans-serif;
@@ -55,7 +55,7 @@ h4 {
   line-height: 1.2;
 }
 
-/* 링크 : 기본 밑줄을 제거, 부모 글자색 */
+/* 留곹겕 : 湲곕낯 諛묒쨪???쒓굅, 遺紐?湲?먯깋 */
 a {
   color: inherit;
   text-decoration: none;
@@ -67,7 +67,7 @@ figure {
   padding: 0;
 }
 
-/* 입력 요소 : 버튼과 입력창의 글꼴 */
+/* ?낅젰 ?붿냼 : 踰꾪듉怨??낅젰李쎌쓽 湲瑗?*/
 button,
 input,
 select,
@@ -75,12 +75,12 @@ textarea {
   font: inherit;
 }
 
-/* 버튼 기본값 */
+/* 踰꾪듉 湲곕낯媛?*/
 button {
   border: 0;
 }
 
-/* 입력창 공통 : 텍스트 입력, 선택 박스, textarea */
+/* ?낅젰李?怨듯넻 : ?띿뒪???낅젰, ?좏깮 諛뺤뒪, textarea */
 input,
 select,
 textarea {
@@ -96,12 +96,46 @@ textarea {
   resize: none;
 }
 
-/* 숨김 속성*/
+.select2-container {
+  width: 100% !important;
+}
+
+.select2-container--default .select2-selection--single {
+  height: 46px;
+  min-height: 46px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--white);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  width: 100%;
+  padding-left: 0;
+  padding-right: 26px;
+  color: var(--ink);
+  line-height: 44px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 44px;
+  top: 0;
+  right: 8px;
+}
+
+.form-error {
+  margin-top: -8px;
+  color: var(--coral);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* ?④? ?띿꽦*/
 [hidden] {
   display: none !important;
 }
 
-/* 공통 레이아웃 : 최대 너비, 가운데 정렬 */
+/* 怨듯넻 ?덉씠?꾩썐 : 理쒕? ?덈퉬, 媛?대뜲 ?뺣젹 */
 .nav-bar,
 .hero-page,
 .app-shell {
@@ -111,7 +145,7 @@ textarea {
   padding-inline: var(--page-pad);
 }
 
-/*가로 정렬*/
+/*媛濡??뺣젹*/
 .brand,
 .ai-input-box,
 .panel-title,
@@ -126,7 +160,7 @@ textarea {
   align-items: center;
 }
 
-/* 공통 패널 : 카드, 검색창, 패널의 배경과 그림자 */
+/* 怨듯넻 ?⑤꼸 : 移대뱶, 寃?됱갹, ?⑤꼸??諛곌꼍怨?洹몃┝??*/
 .hero-search,
 .panel,
 .filter-panel,
@@ -138,7 +172,7 @@ textarea {
   box-shadow: var(--shadow);
 }
 
-/* 공통 카드 : 카드형 요소의 테두리와 배경 */
+/* 怨듯넻 移대뱶 : 移대뱶???붿냼???뚮몢由ъ? 諛곌꼍 */
 .toolbox-card,
 .record-list li,
 .prompt-item,
@@ -148,7 +182,13 @@ textarea {
   background: var(--soft-panel);
 }
 
-/* 공통 큰 버튼 : 주요 실행 버튼의 크기와 굵기*/
+.setup-section.panel,
+.language-section.panel,
+.journal-workspace.panel {
+  background: var(--panel);
+}
+
+/* 怨듯넻 ??踰꾪듉 : 二쇱슂 ?ㅽ뻾 踰꾪듉???ш린? 援듦린*/
 .ai-input-box button,
 .stack-form button,
 .wide-button,
@@ -161,7 +201,7 @@ textarea {
   white-space: nowrap;
 }
 
-/* 주요 버튼 색상 : 실행 버튼 */
+/* 二쇱슂 踰꾪듉 ?됱긽 : ?ㅽ뻾 踰꾪듉 */
 .ai-input-box button,
 .stack-form button,
 .wide-button,
@@ -170,7 +210,7 @@ textarea {
   background: var(--blue);
 }
 
-/* 공통 줄 배치 : 배지와 액션 버튼을 줄바꿈*/
+/* 공통 줄 배치 : 배지와 액션 버튼 줄바꿈 */
 .badge-row,
 .card-actions,
 .record-meta,
@@ -181,7 +221,7 @@ textarea {
   flex-wrap: wrap;
 }
 
-/* 스크롤바 : 목록형 영역의 스크롤바 크기 통일 */
+/* ?ㅽ겕濡ㅻ컮 : 紐⑸줉???곸뿭???ㅽ겕濡ㅻ컮 ?ш린 ?듭씪 */
 .toolbox-grid::-webkit-scrollbar,
 .record-list::-webkit-scrollbar,
 .prompt-shelf::-webkit-scrollbar,
@@ -191,7 +231,7 @@ textarea {
   height: 8px;
 }
 
-/* 스크롤바 손잡이 : 스크롤바 색상과 모양 */
+/* ?ㅽ겕濡ㅻ컮 ?먯옟??: ?ㅽ겕濡ㅻ컮 ?됱긽怨?紐⑥뼇 */
 .toolbox-grid::-webkit-scrollbar-thumb,
 .record-list::-webkit-scrollbar-thumb,
 .prompt-shelf::-webkit-scrollbar-thumb,
@@ -201,7 +241,7 @@ textarea {
   background: var(--scroll-thumb);
 }
 
-/* 접근성 텍스트 */
+/* ?묎렐???띿뒪??*/
 .sr-only {
   position: absolute;
   width: 1px;
@@ -214,7 +254,7 @@ textarea {
   border: 0;
 }
 
-/* 상단 헤더 : 로고, 탭, 로그인 버튼 */
+/* ?곷떒 ?ㅻ뜑 : 濡쒓퀬, ?? 濡쒓렇??踰꾪듉 */
 .site-header {
   display: flex;
   flex-direction: column;
@@ -272,7 +312,7 @@ textarea {
   background: var(--blue);
 }
 
-/* 로그인 메뉴 : 상단의 로그인/로그아웃 */
+/* 濡쒓렇??硫붾돱 : ?곷떒??濡쒓렇??濡쒓렇?꾩썐 */
 .auth-bar {
   display: flex;
   align-items: center;
@@ -294,7 +334,7 @@ textarea {
   font-weight: 800;
 }
 
-/* 로그인 창 */
+/* 濡쒓렇??李?*/
 .auth-modal,
 .ai-compare-box {
   position: fixed;
@@ -319,25 +359,25 @@ textarea {
   width: 100%;
 }
 
-/* 로그인 창 : 로그인/회원가입 너비 */
+/* 濡쒓렇??李?: 濡쒓렇???뚯썝媛???덈퉬 */
 .auth-dialog {
   max-width: 460px;
 }
 
-/* 로그인 폼 : 로그인 또는 회원가입 세로로 배치*/
+/* 濡쒓렇????: 濡쒓렇???먮뒗 ?뚯썝媛???몃줈濡?諛곗튂*/
 .auth-grid {
   display: grid;
   gap: 18px;
 }
 
-/* 로그인 메시지 : 로그인 오류, 가입 완료 문구*/
+/* 濡쒓렇??硫붿떆吏 : 濡쒓렇???ㅻ쪟, 媛???꾨즺 臾멸뎄*/
 .auth-message {
   margin: 16px 0 0;
   color: var(--muted);
   font-weight: 700;
 }
 
-/* 로그인 전환 : 로그인, 회원가입 화면 전환 */
+/* 濡쒓렇???꾪솚 : 濡쒓렇?? ?뚯썝媛???붾㈃ ?꾪솚 */
 .auth-switch {
   margin: 12px 0 0;
   color: var(--muted);
@@ -360,7 +400,7 @@ textarea {
   display: block;
 }
 
-/* 홈 검색 : 목표 입력창 필터 영역*/
+/* ??寃??: 紐⑺몴 ?낅젰李??꾪꽣 ?곸뿭*/
 .hero {
   width: 100%;
   max-width: var(--hero-width);
@@ -506,7 +546,7 @@ textarea {
   background: var(--green);
 }
 
-/* 추천 결과 : 섹션 제목과 추천 카드 목록 */
+/* 異붿쿇 寃곌낵 : ?뱀뀡 ?쒕ぉ怨?異붿쿇 移대뱶 紐⑸줉 */
 .section-head {
   padding: 28px 6px 10px;
   display: flex;
@@ -651,7 +691,7 @@ textarea {
   font-weight: 900;
 }
 
-/* 도구 모음 : 단계 바로가기, 필터, 도구 배치*/
+/* ?꾧뎄 紐⑥쓬 : ?④퀎 諛붾줈媛湲? ?꾪꽣, ?꾧뎄 諛곗튂*/
 .panel {
   padding: 22px;
 }
@@ -678,15 +718,62 @@ textarea {
 
 .toolbox-sidebar {
   display: grid;
-  gap: 12px;
+  gap: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
 }
 
 .toolbox-filter-panel {
   min-width: 0;
-  padding: 4px 2px;
-  border-color: transparent;
+  margin-top: 10px;
+  padding: 10px 2px 2px;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
   background: transparent;
   box-shadow: none;
+}
+
+.toolbox-filter-toggle {
+  width: 100%;
+  min-height: auto;
+  padding: 8px 0;
+  border-radius: 0;
+  color: var(--muted);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-weight: 900;
+  text-align: left;
+}
+
+.toolbox-filter-toggle::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.toolbox-filter-toggle:hover,
+.toolbox-filter-toggle[aria-expanded="true"] {
+  color: var(--blue);
+  background: transparent;
+}
+
+.toolbox-filter-body {
+  display: grid;
+  gap: 14px;
+  padding-top: 4px;
+}
+
+.toolbox-filter-body[hidden] {
+  display: none;
 }
 
 .toolbox-main {
@@ -701,37 +788,82 @@ textarea {
 }
 
 .toolbox-stage-nav {
-  min-height: 220px;
-  padding: 16px;
+  padding: 4px 2px 12px;
   display: grid;
   align-content: start;
-  gap: 10px;
-  border-radius: var(--radius-panel);
+  gap: 6px;
   background: transparent;
 }
 
 .toolbox-stage-nav button {
-  min-height: 48px;
-  padding: 0 14px;
-  border-radius: var(--radius-control);
-  color: #243b5a;
-  background: rgba(237, 245, 255, 0.42);
+  min-height: auto;
+  padding: 8px 0;
+  border-radius: 0;
+  color: var(--muted);
+  background: transparent;
   font-weight: 900;
   text-align: left;
 }
 
 .toolbox-stage-nav button:hover {
-  background: #f2f6ff;
+  color: var(--blue);
+  background: transparent;
 }
 
 .toolbox-stage-nav button.active {
-  color: #15315f;
-  background: rgba(215, 232, 255, 0.92);
+  color: var(--blue);
+  background: transparent;
+}
+
+.toolbox-stage-nav .stage-toggle {
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.toolbox-stage-nav .stage-toggle::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.toolbox-step-list {
+  display: none;
+  gap: 4px;
+  padding: 0 0 2px 12px;
+}
+
+.toolbox-step-list.open {
+  display: grid;
+}
+
+.toolbox-step-list .step-button {
+  padding: 6px 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.toolbox-step-list .step-button.active {
+  color: var(--blue);
+}
+
+.toolbox-stage-nav hr {
+  width: 100%;
+  height: 1px;
+  margin: 6px 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--line);
 }
 
 .toolbox-stage-list,
 .toolbox-stage {
-  min-height: 640px;
+  min-height: auto;
 }
 
 .toolbox-stage {
@@ -739,6 +871,7 @@ textarea {
   display: grid;
   gap: 12px;
   overflow: visible;
+  background: var(--panel);
 }
 
 .toolbox-stage-head {
@@ -803,7 +936,7 @@ textarea {
   padding: 12px;
   display: grid;
   border-radius: var(--radius-card);
-  background: #fff;
+  background: #f9fbfe;
   overflow: hidden;
 }
 
@@ -823,7 +956,7 @@ textarea {
   place-items: center;
   border-radius: var(--radius-card);
   color: #465367;
-  background: #f8fbff;
+  background: #eef5fc;
   font-weight: 800;
   text-align: center;
 }
@@ -875,7 +1008,7 @@ textarea {
   display: grid;
   place-items: center;
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(249, 251, 254, 0.98);
   font-size: 13px;
   line-height: 1.6;
   opacity: 0;
@@ -888,7 +1021,7 @@ textarea {
   opacity: 1;
 }
 
-/* AI 비교 버튼*/
+/* AI 鍮꾧탳 踰꾪듉*/
 .ai-compare-toggle {
   min-height: 42px;
   padding: 0 18px;
@@ -898,12 +1031,12 @@ textarea {
   font-weight: 900;
 }
 
-/* AI 비교 팝업 : 비교 창, 어두운 배경*/
+/* AI 鍮꾧탳 ?앹뾽 : 鍮꾧탳 李? ?대몢??諛곌꼍*/
 .ai-compare-box {
   z-index: 30;
 }
 
-/* AI 비교 창 : 비교 선택 박스, 표 팝업 */
+/* AI 鍮꾧탳 李?: 鍮꾧탳 ?좏깮 諛뺤뒪, ???앹뾽 */
 .ai-compare-dialog {
   max-width: 760px;
   max-height: 720px;
@@ -919,7 +1052,7 @@ textarea {
   text-align: center;
 }
 
-/* AI 비교 선택 */
+/* AI 鍮꾧탳 ?좏깮 */
 .ai-compare-selects {
   display: flex;
   align-items: center;
@@ -935,7 +1068,7 @@ textarea {
   font-weight: 900;
 }
 
-/* AI 비교 표 : AI의 칸 너비 */
+/* AI 鍮꾧탳 ??: AI??移??덈퉬 */
 .ai-compare-table {
   width: 100%;
   table-layout: fixed;
@@ -970,7 +1103,7 @@ textarea {
   overflow-wrap: anywhere;
 }
 
-/* AI 비교 닫기 */
+/* AI 鍮꾧탳 ?リ린 */
 .ai-compare-close {
   min-height: 46px;
   border-radius: var(--radius-control);
@@ -979,7 +1112,7 @@ textarea {
   font-weight: 900;
 }
 
-/* 프롬프트/기록/설정 : 저장 목록과 입력 */
+/* ?꾨＼?꾪듃/湲곕줉/?ㅼ젙 : ???紐⑸줉怨??낅젰 */
 .stack-form,
 .record-list,
 .prompt-shelf {
@@ -1116,7 +1249,7 @@ textarea {
 }
 
 .helper-card {
-  background: #fff;
+  background: #f9fbfe;
   box-shadow: none;
 }
 
@@ -1206,7 +1339,7 @@ textarea {
   padding: 9px 10px;
 }
 
-/* 홈 참고 영역 : 개발 분야, 개발자 소통, 단축키 표, 푸터 */
+/* ??李멸퀬 ?곸뿭 : 媛쒕컻 遺꾩빞, 媛쒕컻???뚰넻, ?⑥텞???? ?명꽣 */
 .career-section {
   padding-bottom: 10px;
 }
@@ -1301,7 +1434,7 @@ textarea {
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: var(--radius-panel);
-  background: var(--panel);
+  background: #f9fbfe;
 }
 
 .career-card h3 {
@@ -1323,7 +1456,7 @@ textarea {
   color: var(--muted);
 }
 
-/* 반응형 화면 : 좁은 화면에서는 주요 영역을 한 줄로 쌓습니다. */
+/* 諛섏쓳???붾㈃ : 醫곸? ?붾㈃?먯꽌??二쇱슂 ?곸뿭????以꾨줈 ?볦뒿?덈떎. */
 @media (max-width: 768px) {
   .nav-bar {
     min-height: auto;
@@ -1420,12 +1553,8 @@ textarea {
   }
 
   .toolbox-stage-nav {
-    min-height: auto;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-auto-flow: row;
-    overflow-x: visible;
-    border-left: 0;
-    border-bottom: 1px solid var(--line);
+    grid-template-columns: minmax(0, 1fr);
+    border-bottom: 0;
   }
 
   .toolbox-stage-nav strong {
@@ -1434,19 +1563,35 @@ textarea {
     text-align: center;
   }
 
-  .toolbox-stage-nav button[data-view="all"],
-  .toolbox-stage-nav button[data-view="stage"] {
-    grid-column: 1 / -1;
-  }
-
   .toolbox-stage-nav button {
-    min-height: 40px;
-    padding: 0 8px;
+    min-height: auto;
+    padding: 8px 0;
     font-size: 14px;
     white-space: nowrap;
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .toolbox-step-list.open {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 0 0 6px;
+  }
+
+  .toolbox-step-list .step-button {
+    text-align: center;
+  }
+
+  .toolbox-stage-nav .stage-toggle,
+  .toolbox-filter-toggle {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .toolbox-stage-nav .stage-toggle::after,
+  .toolbox-filter-toggle::after {
+    margin-left: 8px;
   }
 
   .community-grid {
@@ -1489,3 +1634,4 @@ textarea {
     width: auto;
   }
 }
+
