@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -248,13 +249,13 @@
       </div>
       <div class="auth-grid" aria-label="계정 입력 양식">
         <form class="stack-form" id="loginForm">
-          <input id="loginId" type="text" placeholder="아이디" autocomplete="username">
-          <input id="loginPassword" type="password" placeholder="비밀번호" autocomplete="current-password">
+          <input id="loginId" name="loginId" type="text" placeholder="아이디" autocomplete="username">
+          <input id="loginPassword" name="loginPassword" type="password" placeholder="비밀번호" autocomplete="current-password">
           <button type="submit">로그인</button>
         </form>
         <form class="stack-form" id="signupForm" hidden>
-          <input id="signupId" type="text" placeholder="아이디" autocomplete="username">
-          <input id="signupPassword" type="password" placeholder="비밀번호" autocomplete="new-password">
+          <input id="signupId" name="signupId" type="text" placeholder="아이디" autocomplete="username">
+          <input id="signupPassword" name="signupPassword" type="password" placeholder="비밀번호" autocomplete="new-password">
           <button type="submit">회원가입</button>
         </form>
       </div>
@@ -277,25 +278,27 @@
           <nav class="toolbox-stage-nav" id="toolboxStageNav" aria-label="단계 바로가기"></nav>
           <div class="toolbox-filter-panel panel" id="toolboxFilterPanel" aria-label="도구 모음 필터">
             <div class="panel-title">
-              <h2>필터</h2>
+              <button class="toolbox-filter-toggle" id="toolboxFilterToggle" type="button" aria-expanded="false">필터</button>
             </div>
-            <div class="filter-group">
-              <span>분류</span>
-              <label><input type="radio" name="toolboxKind" value="all" checked> 전체</label>
-              <label><input type="radio" name="toolboxKind" value="dev"> 개발 프로그램</label>
-              <label><input type="radio" name="toolboxKind" value="ai"> AI</label>
-            </div>
-            <div class="filter-group">
-              <span>사용 언어</span>
-              <select id="toolboxLanguageFilter">
-                <option value="all">전체 언어</option>
-              </select>
-            </div>
-            <div class="filter-group">
-              <span>공부 분야</span>
-              <select id="toolboxFieldFilter">
-                <option value="all">전체 분야</option>
-              </select>
+            <div class="toolbox-filter-body" id="toolboxFilterBody" hidden>
+              <div class="filter-group">
+                <span>분류</span>
+                <label><input type="radio" name="toolboxKind" value="all" checked> 전체</label>
+                <label><input type="radio" name="toolboxKind" value="dev"> 개발 프로그램</label>
+                <label><input type="radio" name="toolboxKind" value="ai"> AI</label>
+              </div>
+              <div class="filter-group">
+                <span>사용 언어</span>
+                <select id="toolboxLanguageFilter">
+                  <option value="all">전체 언어</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <span>공부 분야</span>
+                <select id="toolboxFieldFilter">
+                  <option value="all">전체 분야</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -367,8 +370,8 @@
         </div>
         <form id="promptForm" class="stack-form prompt-editor">
           <input type="hidden" id="editingPromptIndex" value="">
-          <input id="promptTitle" type="text" placeholder="프롬프트 제목">
-          <textarea id="promptText" rows="8" placeholder="예: 너는 웹 개발 튜터야. 내가 만든 HTML/CSS/JavaScript 코드를 초보자 눈높이로 설명해줘."></textarea>
+          <input id="promptTitle" name="promptTitle" type="text" placeholder="프롬프트 제목">
+          <textarea id="promptText" name="promptText" rows="8" placeholder="예: 너는 웹 개발 튜터야. 내가 만든 HTML/CSS/JavaScript 코드를 초보자 눈높이로 설명해줘."></textarea>
           <div class="editor-actions">
             <button type="submit">프롬프트 저장</button>
           </div>
@@ -431,7 +434,6 @@ OS:
     <section class="tab-page" id="journal" data-page="journal">
       <div class="section-head">
         <div>
-          <p class="eyebrow">학습 기록</p>
           <h2>나의 개발 일지</h2>
         </div>
       </div>
@@ -445,18 +447,18 @@ OS:
         </div>
         <form id="recordForm" class="stack-form prompt-editor">
           <input type="hidden" id="editingRecordIndex" value="">
-          <input id="recordTitle" type="text" placeholder="제목: Python 기초 문법">
-          <textarea id="recordContent" rows="7" placeholder="공부 내용: 예) 변수, 조건문, 반복문, 함수 사용법을 정리했다."></textarea>
+          <input id="recordTitle" name="recordTitle" type="text" placeholder="제목: Python 기초 문법">
+          <textarea id="recordContent" name="recordContent" rows="7" placeholder="공부 내용: 예) 변수, 조건문, 반복문, 함수 사용법을 정리했다."></textarea>
           <div class="record-selects" aria-label="학습 분류 선택">
-            <select id="recordField">
+            <select id="recordField" name="recordField">
               <option value="">공부 분야 선택</option>
             </select>
-            <select id="recordLanguage">
+            <select id="recordLanguage" name="recordLanguage">
               <option value="">사용 언어 선택</option>
             </select>
           </div>
           <div class="two-inputs record-ai-row">
-            <input id="recordAi" type="text" placeholder="사용한 AI: ChatGPT, Claude, Codex">
+            <input id="recordAi" name="recordAi" type="text" placeholder="사용한 AI: ChatGPT, Claude, Codex">
             <button type="submit">학습 기록 저장</button>
           </div>
         </form>
@@ -479,9 +481,11 @@ OS:
   <footer class="site-footer">
     <a href="#top">맨 위로</a>
   </footer>
-
+  
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

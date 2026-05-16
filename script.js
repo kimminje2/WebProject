@@ -881,6 +881,7 @@ function fillSelect($select, options, allLabel, selectedValue, getLabel = (value
   )));
   
   $select.val(options.includes(selectedValue) ? selectedValue : allValue);
+  refreshSelect2($select);
 }
 
 /* 계정 관리 함수 : 회원가입한 계정 목록을 읽습니다. */
@@ -966,6 +967,9 @@ function renderUserViews() {
 function resetForm(formSelector, indexSelector = "") {
   if (indexSelector) $(indexSelector).val("");
   $(formSelector)[0]?.reset();
+  $(formSelector).find("select").each(function () {
+    refreshSelect2($(this));
+  });
   
 }
 
@@ -978,6 +982,69 @@ function closePopup(selector) {
 /* 플러그인 함수 : jQuery Easing으로 화면 상단 이동을 부드럽게 처리합니다. */
 function scrollToTop() {
   $("html, body").stop().animate({ scrollTop: 0 }, 520, "easeOutCubic");
+}
+
+/* 플러그인 함수 : Select2가 적용된 select의 화면 값을 갱신합니다. */
+function refreshSelect2($select) {
+  if ($.fn.select2 && $select.hasClass("select2-hidden-accessible")) $select.trigger("change.select2");
+}
+
+/* 플러그인 함수 : 주요 선택 박스에 Select2 검색 UI를 적용합니다. */
+function initSelect2Controls() {
+  if (!$.fn.select2) return;
+  const selectors = [
+    "#fieldFilter", "#languageFilter", "#toolboxLanguageFilter", "#toolboxFieldFilter",
+    "#aiCompareFirst", "#aiCompareSecond", "#recordField", "#recordLanguage",
+    "#recordFieldFilter", "#recordLanguageFilter"
+  ].join(", ");
+  
+  $(selectors).each(function () {
+    const $select = $(this);
+    if ($select.hasClass("select2-hidden-accessible")) return;
+    $select.select2({
+      width: "100%",
+      minimumResultsForSearch: 6
+    });
+  });
+}
+
+/* 플러그인 함수 : jQuery Validation으로 입력 폼의 필수값을 검사합니다. */
+function initFormValidation() {
+  if (!$.fn.validate) return;
+  const common = {
+    errorClass: "form-error",
+    errorElement: "small",
+    highlight(element) {
+      $(element).attr("aria-invalid", "true");
+    },
+    unhighlight(element) {
+      $(element).removeAttr("aria-invalid");
+    }
+  };
+  
+  $("#signupForm").validate({
+    ...common,
+    rules: { signupId: "required", signupPassword: { required: true, minlength: 4 } },
+    messages: { signupId: "아이디를 입력하세요.", signupPassword: { required: "비밀번호를 입력하세요.", minlength: "비밀번호는 4자 이상 입력하세요." } }
+  });
+  
+  $("#loginForm").validate({
+    ...common,
+    rules: { loginId: "required", loginPassword: "required" },
+    messages: { loginId: "아이디를 입력하세요.", loginPassword: "비밀번호를 입력하세요." }
+  });
+  
+  $("#recordForm").validate({
+    ...common,
+    rules: { recordContent: "required" },
+    messages: { recordContent: "학습 내용을 입력하세요." }
+  });
+  
+  $("#promptForm").validate({
+    ...common,
+    rules: { promptTitle: "required", promptText: "required" },
+    messages: { promptTitle: "프롬프트 제목을 입력하세요.", promptText: "프롬프트 내용을 입력하세요." }
+  });
 }
 
 /* 공통 필터 함수 : 도구가 선택한 공부 분야에 포함되는지 확인합니다. */
@@ -1018,49 +1085,51 @@ function renderToolbox() {
   
   if (filters.view === "all") {
     renderToolboxAll($target, toolboxStages, filters);
-    renderToolboxNav([]);
+    renderToolboxNav();
     return;
     
   }
   
-  const visibleStages = toolboxStages.map((stage) => ({
-    stage, devTools: getToolboxTools(stage.dev, "dev", filters), aiTools: getToolboxTools(stage.ai, "ai", filters)
-  }
-  )).filter((item) => item.devTools.length || item.aiTools.length);
+  const activeStage = toolboxStages[appData.activeToolboxStage] || toolboxStages[0];
+  const visibleStages = activeStage ? [{
+    stage: activeStage,
+    devTools: getToolboxTools(activeStage.dev, "dev", filters),
+    aiTools: getToolboxTools(activeStage.ai, "ai", filters)
+  }] : [];
   
-  appData.activeToolboxStage = Math.min(appData.activeToolboxStage || 0, Math.max(visibleStages.length - 1, 0));
-  
-  const activeItem = visibleStages[appData.activeToolboxStage];
-  
-  if (activeItem) {
+  visibleStages.forEach((item) => {
     
-    const $stage = $(`<article class="toolbox-stage panel"><div class="toolbox-stage-head"><div><p class="eyebrow">${activeItem.stage.subtitle}</p><h3>${activeItem.stage.title}</h3></div><span>${activeItem.stage.goal}</span></div><div class="toolbox-columns"></div></article>`);
+    const $stage = $(`<article class="toolbox-stage panel"><div class="toolbox-stage-head"><div><p class="eyebrow">${item.stage.subtitle}</p><h3>${item.stage.title}</h3></div></div><div class="toolbox-columns"></div></article>`);
     
-    renderToolboxGroup($stage.find(".toolbox-columns"), "개발 프로그램", activeItem.devTools);
+    renderToolboxGroup($stage.find(".toolbox-columns"), "개발 프로그램", item.devTools);
     
-    renderToolboxGroup($stage.find(".toolbox-columns"), "AI", activeItem.aiTools);
+    renderToolboxGroup($stage.find(".toolbox-columns"), "AI", item.aiTools);
     
     $target.append($stage);
   }
+  );
   
-  renderToolboxNav(visibleStages.map((item, index) => ({
-    index, title: item.stage.title
-  }
-  )));
+  renderToolboxNav();
 }
 
-/* 도구 모음 함수 : 단계 바로가기 버튼을 그립니다. */
-function renderToolboxNav(items) {
+/* 도구 모음 함수 : 전체보기와 단계별 보기 전환 텍스트를 그립니다. */
+function renderToolboxNav() {
   
-  const $nav = $("#toolboxStageNav").empty().append("<strong>단계 바로가기</strong>").append('<button type="button" data-view="all">전체보기</button>');
+  const view = appData.toolboxView || "stage";
+  const activeStage = appData.activeToolboxStage || 0;
+  const stageOpenClass = view === "stage" ? " open" : "";
+  const $nav = $("#toolboxStageNav").empty();
   
-  if (appData.toolboxView === "all") $nav.append('<button type="button" data-view="stage">단계별 보기</button>');
+  $nav.append(`<button class="${view === "all" ? "active" : ""}" type="button" data-view="all">전체보기</button>`);
+  $nav.append("<hr>");
+  $nav.append(`<button class="stage-toggle ${view === "stage" ? "active" : ""}" type="button" data-view="stage" aria-expanded="${view === "stage"}">단계별 보기</button>`);
   
-  items.forEach((item) => {
-    const shortTitle = item.title.split(":")[0];
-    const active = item.index === appData.activeToolboxStage ? "active" : "";
-    $nav.append(`<button class="${active}" type="button" data-stage-index="${item.index}" aria-label="${item.title}">${shortTitle}</button>`);
+  const $stageList = $(`<div class="toolbox-step-list${stageOpenClass}" aria-label="단계 선택"></div>`);
+  toolboxStages.forEach((stage, index) => {
+    const shortTitle = `${index + 1}단계`;
+    $stageList.append(`<button class="step-button ${view === "stage" && activeStage === index ? "active" : ""}" type="button" data-stage="${index}">${shortTitle}</button>`);
   });
+  $nav.append($stageList);
 }
 
 /* 도구 모음 함수 : 전체보기에서 개발 프로그램과 AI를 나누어 출력합니다. */
@@ -1144,6 +1213,8 @@ function renderAiCompareOptions() {
   );
   
   $second.val(aiTools[1]?.name || aiTools[0]?.name || "");
+  refreshSelect2($first);
+  refreshSelect2($second);
   
   renderAiCompare();
 }
@@ -1668,6 +1739,8 @@ $(function () {
   renderAiCompareOptions();
   renderToolbox();
   renderUserViews();
+  initSelect2Controls();
+  initFormValidation();
   
   $(".tab-button").on("click", function () {
     const target = $(this).data("tab");
@@ -1712,6 +1785,7 @@ $(function () {
   
   $("#signupForm").on("submit", function (event) {
     event.preventDefault();
+    if ($.fn.validate && !$(this).valid()) return;
     const id = $("#signupId").val().trim(), password = $("#signupPassword").val(), accounts = loadAccounts();
     if (!id || !password) return showAuthMessage("아이디와 비밀번호를 모두 입력하세요.");
     if (accounts[id]) return showAuthMessage("이미 가입된 아이디입니다.");
@@ -1729,6 +1803,7 @@ $(function () {
   
   $("#loginForm").on("submit", function (event) {
     event.preventDefault();
+    if ($.fn.validate && !$(this).valid()) return;
     const id = $("#loginId").val().trim(), password = $("#loginPassword").val(), account = loadAccounts()[id];
     if (!account || account.password !== password) return showAuthMessage("아이디 또는 비밀번호가 맞지 않습니다.");
     localStorage.setItem("currentUser", id);
@@ -1787,6 +1862,7 @@ $(function () {
   
   $("#toolboxStageNav").on("click", "button", function () {
     const view = $(this).data("view");
+    const stage = $(this).data("stage");
     if (view === "all") {
       appData.toolboxView = "all";
       renderToolbox();
@@ -1795,14 +1871,23 @@ $(function () {
     }
     if (view === "stage") {
       appData.toolboxView = "stage";
-      appData.activeToolboxStage = 0;
       renderToolbox();
       return;
-      
     }
-    appData.toolboxView = "stage";
-    appData.activeToolboxStage = Number($(this).data("stageIndex")) || 0;
-    renderToolbox();
+    if (stage !== undefined) {
+      appData.toolboxView = "stage";
+      appData.activeToolboxStage = Number(stage);
+      renderToolbox();
+    }
+    
+  }
+  );
+
+  $("#toolboxFilterToggle").on("click", function () {
+    const $body = $("#toolboxFilterBody");
+    const isOpen = !$body.prop("hidden");
+    $body.prop("hidden", isOpen);
+    $(this).attr("aria-expanded", String(!isOpen));
     
   }
   );
@@ -1819,6 +1904,9 @@ $(function () {
   $("#resetFilters").on("click", function () {
     $("input[name='cost'][value='all']").prop("checked", true);
     $("#fieldFilter, #languageFilter").val("all");
+    $("#fieldFilter, #languageFilter").each(function () {
+      refreshSelect2($(this));
+    });
     $("#goalInput").val("");
     appData.hasSearched = false;
     renderSearchResults();
@@ -1852,6 +1940,7 @@ $(function () {
   
   $("#recordForm").on("submit", function (event) {
     event.preventDefault();
+    if ($.fn.validate && !$(this).valid()) return;
     const content = $("#recordContent").val().trim();
     const title = $("#recordTitle").val().trim() || content.slice(0, 28);
     if (!title && !content) return;
@@ -1881,6 +1970,9 @@ $(function () {
     $("#recordSearchFilter").val("");
     $("#recordFieldFilter, #recordLanguageFilter").val("all");
     $("#recordField, #recordLanguage").val("");
+    $("#recordFieldFilter, #recordLanguageFilter, #recordField, #recordLanguage").each(function () {
+      refreshSelect2($(this));
+    });
     appData.expandedRecordIndex = savedIndex;
     renderRecords();
     
@@ -1910,6 +2002,9 @@ $(function () {
     $("#recordContent").val(record.content || record.title);
     $("#recordField").val(getRecordField(record));
     $("#recordLanguage").val(Object.entries(languageLabels).find(([, label]) => label === getRecordLanguage(record))?.[0] || record.language || "");
+    $("#recordField, #recordLanguage").each(function () {
+      refreshSelect2($(this));
+    });
     $("#recordAi").val(record.ai);
     appData.expandedRecordIndex = appData.expandedRecordIndex === index ? null : index;
     renderRecords();
@@ -1930,6 +2025,7 @@ $(function () {
   
   $("#promptForm").on("submit", function (event) {
     event.preventDefault();
+    if ($.fn.validate && !$(this).valid()) return;
     const title = $("#promptTitle").val().trim(), text = $("#promptText").val().trim();
     if (!title || !text) return;
     const editingIndex = $("#editingPromptIndex").val();
