@@ -13,21 +13,33 @@
 <body>
   <header class="site-header" id="top">
     <nav class="nav-bar">
-      <a class="brand" href="#top" aria-label="AI 개발 가이드 홈">
-        <span class="brand-mark">AI</span>
-        <span>AI 개발 가이드</span>
-      </a>
-      <div class="top-tabs" aria-label="기능 탭">
-        <button class="tab-button active" type="button" data-tab="home">홈</button>
-        <button class="tab-button" type="button" data-tab="toolbox">도구 모음</button>
-        <button class="tab-button" type="button" data-tab="settings">환경</button>
-        <button class="tab-button" type="button" data-tab="prompts">AI 프롬프트</button>
-        <button class="tab-button" type="button" data-tab="journal">학습 일지</button>
+      <div class="nav-primary">
+        <a class="brand" href="#top" aria-label="AI 개발 가이드 홈">
+          <span class="brand-mark">AI</span>
+          <span>AI 개발 가이드</span>
+        </a>
+        <div class="top-tabs" aria-label="기능 탭">
+          <button class="tab-button active" type="button" data-tab="home">홈</button>
+          <button class="tab-button" type="button" data-tab="toolbox">도구 모음</button>
+          <button class="tab-button" type="button" data-tab="settings">환경</button>
+          <button class="tab-button" type="button" data-tab="prompts">AI 프롬프트</button>
+          <button class="tab-button" type="button" data-tab="journal">학습 일지</button>
+        </div>
       </div>
-      <div class="auth-bar" aria-label="계정 메뉴">
-        <span id="authUserText" hidden></span>
-        <button id="authOpen" type="button">로그인</button>
-        <button id="logoutButton" type="button" hidden>로그아웃</button>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="다크모드 전환" aria-pressed="false">
+          <span class="theme-track" aria-hidden="true">
+            <span class="theme-thumb">
+              <span class="theme-icon sun">☀</span>
+              <span class="theme-icon moon">☾</span>
+            </span>
+          </span>
+        </button>
+        <div class="auth-bar" aria-label="계정 메뉴">
+          <span id="authUserText" hidden></span>
+          <button id="authOpen" type="button">로그인</button>
+          <button id="logoutButton" type="button" hidden>로그아웃</button>
+        </div>
       </div>
     </nav>
 
@@ -41,7 +53,6 @@
           </div>
           <div class="hero-controls" aria-label="검색 조건">
             <div class="os-selector" aria-label="사용자 OS 환경 선택">
-              <span>OS 환경</span>
               <button class="os-option active" type="button" data-os="windows">Windows</button>
               <button class="os-option" type="button" data-os="mac">macOS</button>
               <button class="os-option" type="button" data-os="linux">Linux</button>
