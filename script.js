@@ -1,4 +1,4 @@
-﻿/* 저장소 관리 함수 : 로그인한 계정이 있으면 개인 저장소 키를 사용합니다. */
+﻿/* 저장소 : 개인 저장소 키 사용함. */
 const personalStorageKeys = ["llmRecords", "llmPrompts", "installedTools", "languageSettings"];
 
 function storageKey(key) {
@@ -7,7 +7,7 @@ function storageKey(key) {
   
   return user && personalStorageKeys.includes(key) ? `aiGuide:${user}:${key}` : key;
 }
-/* 저장소 관리 함수 : localStorage에서 JSON 데이터를 안전하게 읽습니다. */
+/* 저장소 : JSON 데이터 읽음. */
 function loadJson(key, fallback) {
   
   try {
@@ -21,14 +21,698 @@ function loadJson(key, fallback) {
     return fallback;
   }
 }
-/* 저장소 관리 함수 : 배열이나 객체를 JSON 문자열로 저장합니다. */
+/* 저장소 : JSON 데이터 저장함. */
 function saveJson(key, value) {
   
   localStorage.setItem(storageKey(key), JSON.stringify(value));
 }
+
+/* 유틸 : 단어 포함 여부 확인함. */
+function hasAny(text, words = []) {
+  return words.some((word) => text.includes(word));
+  
+}
+
+/* 유틸 : 빈 값과 중복 제거함. */
+function unique(items) {
+  return [...new Set(items.filter(Boolean))];
+  
+}
+
+/* 유틸 : 선택 옵션 채움. */
+function fillSelect($select, options, allLabel, selectedValue, getLabel = (value) => value, allValue = "all") {
+  
+  $select.empty().append($("<option>", {
+    value: allValue, text: allLabel
+  }
+  ));
+  
+  options.forEach((value) => $select.append($("<option>", {
+    value, text: getLabel(value)
+  }
+  )));
+  
+  $select.val(options.includes(selectedValue) ? selectedValue : allValue);
+  refreshSelect2($select);
+}
+
+/* 계정 : 계정 목록 읽음. */
+function loadAccounts() {
+  return loadJson("aiGuideAccounts", {
+    
+  }
+  );
+  
+}
+
+/* 계정 : 계정 목록 저장함. */
+function saveAccounts(accounts) {
+  localStorage.setItem("aiGuideAccounts", JSON.stringify(accounts));
+  
+}
+
+/* 계정 : 로그인 상태 갱신함. */
+function renderAuth() {
+  
+  const user = appData.currentUser;
+  
+  $("#authUserText").text(user ? `${user}님` : "").prop("hidden", !user);
+  
+  $("#authOpen").prop("hidden", Boolean(user));
+  
+  $("#logoutButton").prop("hidden", !user);
+}
+
+/* 계정 : 로그인 화면 전환함. */
+function setAuthMode(mode) {
+  
+  const isSignup = mode === "signup";
+  
+  $("#authTitle").text(isSignup ? "회원가입" : "로그인");
+  
+  $("#loginForm").prop("hidden", isSignup);
+  
+  $("#signupForm").prop("hidden", !isSignup);
+  
+  $("#authSwitchText").html(`<button id="authModeToggle" type="button">${isSignup ? "로그인" : "회원가입"}</button>`);
+  
+  showAuthMessage("");
+}
+
+/* 계정 : 개인 데이터 다시 읽음. */
+function reloadUserData() {
+  
+  appData.records = loadJson("llmRecords", []);
+  
+  appData.prompts = loadJson("llmPrompts", []);
+  
+  appData.installedTools = loadJson("installedTools", []);
+  
+  appData.languageSettings = loadJson("languageSettings", {
+    
+  }
+  );
+  
+  appData.expandedRecordIndex = null;
+  
+  resetForm("#recordForm", "#editingRecordIndex");
+  
+  resetForm("#promptForm", "#editingPromptIndex");
+  
+  renderUserViews();
+}
+
+/* 계정 : 안내 문구 표시함. */
+function showAuthMessage(message) {
+  $("#authMessage").text(message);
+  
+}
+
+/* 화면 : 개인 화면 갱신함. */
+function renderUserViews() {
+  [renderAuth, renderRecordFormOptions, renderRecords, renderPrompts, renderSetupChecklist, renderLanguageChecklist,
+ renderSearchResults].forEach((render) => render());
+  
+}
+
+/* 폼 : 입력값 초기화함. */
+function resetForm(formSelector, indexSelector = "") {
+  if (indexSelector) $(indexSelector).val("");
+  $(formSelector)[0]?.reset();
+  $(formSelector).find("select").each(function () {
+    refreshSelect2($(this));
+  });
+  
+}
+
+/* 팝업 : 지정 팝업 닫음. */
+function closePopup(selector) {
+  $(selector).prop("hidden", true);
+  
+}
+
+/* 테마 : 화면 모드 반영함. */
+function applyTheme(theme) {
+  const isDark = theme === "dark";
+  $("body").toggleClass("dark-mode", isDark);
+  $("#themeToggle")
+    .attr("aria-pressed", String(isDark))
+    .attr("aria-label", isDark ? "라이트모드로 전환" : "다크모드로 전환");
+}
+
+/* 플러그인 : 상단 이동 부드럽게 함. */
+function scrollToTop() {
+  $("html, body").stop().animate({ scrollTop: 0 }, 520, "easeOutCubic");
+}
+
+/* 플러그인 : Select2 값 갱신함. */
+function refreshSelect2($select) {
+  if ($.fn.select2 && $select.hasClass("select2-hidden-accessible")) $select.trigger("change.select2");
+}
+
+/* 플러그인 : Select2 적용함. */
+function initSelect2Controls() {
+  if (!$.fn.select2) return;
+  const selectors = [
+    "#fieldFilter", "#languageFilter", "#toolboxLanguageFilter", "#toolboxFieldFilter",
+    "#aiCompareFirst", "#aiCompareSecond", "#recordField", "#recordLanguage",
+    "#recordFieldFilter", "#recordLanguageFilter"
+  ].join(", ");
+  
+  $(selectors).each(function () {
+    const $select = $(this);
+    if ($select.hasClass("select2-hidden-accessible")) return;
+    $select.select2({
+      width: "100%",
+      minimumResultsForSearch: 6
+    });
+  });
+}
+
+/* 플러그인 : 필수 입력 검사함. */
+function initFormValidation() {
+  if (!$.fn.validate) return;
+  const common = {
+    errorClass: "form-error",
+    errorElement: "small",
+    highlight(element) {
+      $(element).attr("aria-invalid", "true");
+    },
+    unhighlight(element) {
+      $(element).removeAttr("aria-invalid");
+    }
+  };
+  
+  $("#signupForm").validate({
+    ...common,
+    rules: { signupId: "required", signupPassword: { required: true, minlength: 4 } },
+    messages: { signupId: "아이디를 입력하세요.", signupPassword: { required: "비밀번호를 입력하세요.", minlength: "비밀번호는 4자 이상 입력하세요." } }
+  });
+  
+  $("#loginForm").validate({
+    ...common,
+    rules: { loginId: "required", loginPassword: "required" },
+    messages: { loginId: "아이디를 입력하세요.", loginPassword: "비밀번호를 입력하세요." }
+  });
+  
+  $("#recordForm").validate({
+    ...common,
+    rules: { recordContent: "required" },
+    messages: { recordContent: "학습 내용을 입력하세요." }
+  });
+  
+  $("#promptForm").validate({
+    ...common,
+    rules: { promptTitle: "required", promptText: "required" },
+    messages: { promptTitle: "프롬프트 제목을 입력하세요.", promptText: "프롬프트 내용을 입력하세요." }
+  });
+}
+
+/* 필터 : 분야 포함 여부 확인함. */
+function hasField(tool, field) {
+  return field === "all" || (fieldGroups[field] || [field]).some((item) => tool.fields.includes(item));
+  
+}
+
+/* 도구모음 : 보기 화면 갱신함. */
+function renderToolbox() {
+  
+  const $target = $("#toolboxStageList").empty();
+  
+  const filters = getToolboxFilters();
+  
+  if (filters.view === "all") {
+    renderToolboxAll($target, toolboxStages, filters);
+    renderToolboxNav();
+    return;
+    
+  }
+  
+  const activeStage = toolboxStages[appData.activeToolboxStage] || toolboxStages[0];
+  const visibleStages = activeStage ? [{
+    stage: activeStage,
+    devTools: getToolboxTools(activeStage.dev, "dev", filters),
+    aiTools: getToolboxTools(activeStage.ai, "ai", filters)
+  }] : [];
+  
+  visibleStages.forEach((item) => {
+    
+    const $stage = $(`<article class="toolbox-stage panel"><div class="toolbox-stage-head"><div><p class="eyebrow">${item.stage.subtitle}</p><h3>${item.stage.title}</h3></div></div><div class="toolbox-columns"></div></article>`);
+    
+    renderToolboxGroup($stage.find(".toolbox-columns"), "개발 프로그램", item.devTools);
+    
+    renderToolboxGroup($stage.find(".toolbox-columns"), "AI", item.aiTools);
+    
+    $target.append($stage);
+  }
+  );
+  
+  renderToolboxNav();
+}
+
+/* 도구모음 : 보기 메뉴 갱신함. */
+function renderToolboxNav() {
+  
+  const view = appData.toolboxView || "stage";
+  const activeStage = appData.activeToolboxStage || 0;
+  const stageOpenClass = view === "stage" ? " open" : "";
+  const $nav = $("#toolboxStageNav").empty();
+  
+  $nav.append(`<button class="${view === "all" ? "active" : ""}" type="button" data-view="all">전체보기</button>`);
+  $nav.append("<hr>");
+  $nav.append(`<button class="stage-toggle ${view === "stage" ? "active" : ""}" type="button" data-view="stage" aria-expanded="${view === "stage"}">단계별 보기</button>`);
+  
+  const $stageList = $(`<div class="toolbox-step-list${stageOpenClass}" aria-label="단계 선택"></div>`);
+  toolboxStages.forEach((stage, index) => {
+    const shortTitle = `${index + 1}단계`;
+    $stageList.append(`<button class="step-button ${view === "stage" && activeStage === index ? "active" : ""}" type="button" data-stage="${index}">${shortTitle}</button>`);
+  });
+  $nav.append($stageList);
+}
+
+/* 도구모음 : 전체 도구 출력함. */
+function renderToolboxAll($target, stages, filters) {
+  
+  const devTools = [], aiTools = [];
+  
+  stages.forEach((stage) => {
+    devTools.push(...getToolboxTools(stage.dev, "dev", filters));
+    aiTools.push(...getToolboxTools(stage.ai, "ai", filters));
+    
+  }
+  );
+  
+  const $stage = $('<article class="toolbox-stage panel" id="toolbox-all"><div class="toolbox-stage-head"><div><p class="eyebrow">All Tools</p><h3>전체보기</h3></div></div><div class="toolbox-all-columns"></div></article>');
+  
+  renderToolboxGroup($stage.find(".toolbox-all-columns"), "개발 프로그램", uniqueTools(devTools), {
+    sectionClass: "toolbox-all-section", gridClass: "toolbox-all-grid"
+  }
+  );
+  
+  renderToolboxGroup($stage.find(".toolbox-all-columns"), "AI", uniqueTools(aiTools), {
+    sectionClass: "toolbox-all-section", gridClass: "toolbox-all-grid"
+  }
+  );
+  
+  $target.append($stage);
+}
+
+/* 도구모음 : 중복 도구 제거함. */
+function uniqueTools(tools) {
+  return [...new Map(tools.map((tool) => [tool.name, tool])).values()];
+  
+}
+
+/* 도구모음 : 필터값 모음. */
+function getToolboxFilters() {
+  return {
+    kind: $("input[name='toolboxKind']:checked").val() || "all", language: $("#toolboxLanguageFilter").val() || "all",
+ field: $("#toolboxFieldFilter").val() || "all", view: appData.toolboxView || "stage"
+  }
+  ;
+  
+}
+
+/* 도구모음 : 도구 필터링함. */
+function getToolboxTools(toolNames, kind, filters) {
+  return filters.kind !== "all" && filters.kind !== kind ? [] : toolNames.map((name) => toolMap.get(name)).filter(Boolean).filter((tool) => filters.language === "all" || tool.languages.includes(filters.language)).filter((tool) => hasField(tool,
+ filters.field));
+  
+}
+
+/* 도구모음 : 필터 옵션 채움. */
+function renderToolboxFilters() {
+  
+  fillSelect($("#toolboxLanguageFilter"), unique(appData.tools.flatMap((tool) => tool.languages)), "전체 언어", "all",
+ (language) => languageLabels[language] || language);
+  
+  fillSelect($("#toolboxFieldFilter"), studyFields, "전체 분야", "all", (field) => fieldLabels[field] || field);
+}
+
+/* AI비교 : 선택 옵션 만듦. */
+function renderAiCompareOptions() {
+  
+  const aiTools = appData.tools.filter((tool) => tool.type === "ai" || tool.category === "ai").sort((a, b) => a.name.localeCompare(b.name,
+ "ko"));
+  
+  const $first = $("#aiCompareFirst").empty(), $second = $("#aiCompareSecond").empty();
+  
+  aiTools.forEach((tool) => {
+    $first.append($("<option>", {
+      value: tool.name, text: tool.name
+    }
+    ));
+    $second.append($("<option>", {
+      value: tool.name, text: tool.name
+    }
+    ));
+    
+  }
+  );
+  
+  $second.val(aiTools[1]?.name || aiTools[0]?.name || "");
+  refreshSelect2($first);
+  refreshSelect2($second);
+  
+  renderAiCompare();
+}
+
+/* AI비교 : 선택 AI 비교함. */
+function renderAiCompare() {
+  
+  const first = toolMap.get($("#aiCompareFirst").val()), second = toolMap.get($("#aiCompareSecond").val());
+  
+  const costText = (tool) => (!tool ? "-" : tool.cost === "free" ? "무료" : "유료 포함");
+  
+  $("#aiCompareResult").html([["이름", first?.name || "-", second?.name || "-"], ["특징", first?.summary || "-", second?.summary || "-"],
+ ["비용", costText(first), costText(second)]].map((row) => `<tr><th>${row[0]}</th><td>${row[1]}</td><td>${row[2]}</td></tr>`).join(""));
+}
+
+/* 도구카드 : 카드 묶음 출력함. */
+function renderToolboxGroup($target, title, tools, options = {
+  
+}
+) {
+  
+  const sectionClass = options.sectionClass || "toolbox-group", gridClass = options.gridClass || "toolbox-grid";
+  
+  const $group = $(`<section class="${sectionClass}"><h4>${title}</h4><div class="${gridClass}"></div></section>`);
+  
+  if (!tools.length) $group.find(`.${gridClass}`).append('<p class="toolbox-empty">현재 필터에 맞는 도구가 없습니다.</p>');
+  
+  tools.forEach((tool) => $group.find(`.${gridClass}`).append(getToolboxCard(tool)));
+  
+  $target.append($group);
+}
+
+/* 도구카드 : 카드 HTML 만듦. */
+function getToolboxCard(tool) {
+  return `<a class="toolbox-card" href="${tool.url}" target="_blank" rel="noopener noreferrer"><div class="toolbox-card-top"><img src="${tool.icon}" alt="${tool.name} 아이콘"><div><strong>${tool.name}</strong><span>${tool.cost === "free" ? "무료" : "유료 포함"}</span></div></div><p>${tool.summary}</p></a>`;
+  
+}
+
+/* 도구분류 : 설정 카테고리 정함. */
+function getToolCategory(tool) {
+  return ["ide", "language", "system"].includes(tool.category) ? "ide" : (tool.category || (tool.type === "ai" ? "ai" : "ide"));
+  
+}
+
+/* 환경 : 개발환경 체크리스트 출력함. */
+function renderSetupChecklist() {
+  
+  const $target = $("#setupChecklist").empty(), groups = {
+    
+  }
+  ;
+  
+  /* 데이터 : AI 검색 범위 확장함. */
+appData.tools.forEach((tool) => {
+    const category = getToolCategory(tool);
+    groups[category] = groups[category] || [];
+    groups[category].push(tool);
+    
+  }
+  );
+  
+  toolCategoryOrder.forEach((category) => {
+    
+    const tools = groups[category] || [];
+    
+    if (!tools.length) return;
+    
+    const $section = $(`<section class="tool-category"><h3>${toolCategoryLabels[category] || category}</h3><div class="tool-category-grid"></div></section>`);
+    
+    tools.forEach((tool) => $section.find(".tool-category-grid").append(`<label class="setup-item"><input type="checkbox" value="${tool.name}" ${appData.installedTools.includes(tool.name) ? "checked" : ""}><span>${tool.name}</span></label>`));
+    
+    $target.append($section);
+  }
+  );
+  
+  $("#setupCount").text(`${appData.installedTools.length}개 완료`);
+}
+
+/* 환경 : 사용 언어 목록 출력함. */
+function renderLanguageChecklist() {
+  
+  const $target = $("#languageChecklist").empty();
+  
+  languageOptions.forEach((language) => {
+    
+    const setting = appData.languageSettings[language] || {
+      checked: false, level: "기초"
+    }
+    ;
+    
+    $target.append(`<div class="language-item"><label><input type="checkbox" value="${language}" ${setting.checked ? "checked" : ""}><span>${language}</span></label><select data-language="${language}"><option value="기초" ${setting.level === "기초" ? "selected" : ""}>기초</option><option value="중급" ${setting.level === "중급" ? "selected" : ""}>중급</option><option value="심화" ${setting.level === "심화" ? "selected" : ""}>심화</option></select></div>`);
+  }
+  );
+  
+  $("#languageCount").text(`${Object.values(appData.languageSettings).filter((item) => item.checked).length}개 선택`);
+}
+
+/* 학습일지 : 기록 필터 채움. */
+function updateRecordFilterOptions() {
+  
+  fillSelect($("#recordFieldFilter"), unique([...studyFields, ...appData.records.map((record) => getRecordField(record))]),
+ "전체 분야", $("#recordFieldFilter").val() || "all", (field) => fieldLabels[field] || field);
+  
+  fillSelect($("#recordLanguageFilter"), unique([...languageOptions, ...appData.records.map((record) => getRecordLanguage(record))]),
+ "전체 언어", $("#recordLanguageFilter").val() || "all");
+}
+
+/* 학습일지 : 입력 옵션 채움. */
+function renderRecordFormOptions() {
+  
+  fillSelect($("#recordField"), studyFields, "공부 분야 선택", $("#recordField").val() || "", (field) => fieldLabels[field] || field,
+ "");
+  
+  fillSelect($("#recordLanguage"), Object.keys(languageLabels), "사용 언어 선택", $("#recordLanguage").val() || "", (language) => languageLabels[language],
+ "");
+}
+
+/* 학습일지 : 기록 분야 읽음. */
+function getRecordField(record) {
+  const field = record.field || parseGoal(`${record.title || ""} ${record.content || ""}`).fields[0] || "";
+  return field === "data" ? "ai" : field === "app" ? "web" : field;
+  
+}
+
+/* 학습일지 : 기록 언어 읽음. */
+function getRecordLanguage(record) {
+  if (record.language) return languageLabels[record.language] || record.language;
+  const language = parseGoal(`${record.title || ""} ${record.content || ""}`).languages[0] || "";
+  return languageLabels[language] || language;
+  
+}
+
+/* 학습일지 : 기록 카드 출력함. */
+function renderRecords() {
+  updateRecordFilterOptions();
+
+  const $list = $("#recordList").empty();
+  const searchFilter = ($("#recordSearchFilter").val() || "").trim().toLowerCase();
+  const fieldFilter = $("#recordFieldFilter").val() || "all";
+  const languageFilter = $("#recordLanguageFilter").val() || "all";
+
+  const filteredRecords = appData.records
+    .map((record, index) => ({ ...record, index }))
+    .filter((record) => !searchFilter || getRecordSearchText(record).includes(searchFilter))
+    .filter((record) => fieldFilter === "all" || getRecordField(record) === fieldFilter)
+    .filter((record) => languageFilter === "all" || getRecordLanguage(record) === languageFilter);
+
+  $("#recordCount").text(`${filteredRecords.length}개`);
+
+  filteredRecords.forEach((record) => {
+    const active = String(record.index) === $("#editingRecordIndex").val() ? "active" : "";
+    const expanded = record.index === appData.expandedRecordIndex ? "expanded" : "";
+    $list.append(`
+      <li class="${active} ${expanded}" data-index="${record.index}">
+        <div class="record-card-top">
+          <strong>${record.title}</strong>
+          <div>
+            <span class="record-date">${record.date}</span>
+            <button class="delete-prompt delete-record" type="button" aria-label="학습 기록 삭제">X</button>
+          </div>
+        </div>
+        <div class="record-detail">
+          <div class="record-meta">
+            <span>${fieldLabels[getRecordField(record)] || "분야 미정"}</span>
+            <span>${getRecordLanguage(record) || "언어 미정"}</span>
+            <span>${record.ai || "AI 미정"}</span>
+          </div>
+          <p>${record.content || record.title}</p>
+        </div>
+      </li>
+    `);
+  });
+}
+
+/* 학습일지 : 검색 텍스트 합침. */
+function getRecordSearchText(record) {
+  return [record.title, record.content, record.ai, getRecordLanguage(record), fieldLabels[getRecordField(record)]].join(" ").toLowerCase();
+  
+}
+
+/* 프롬프트 : 보관함 목록 출력함. */
+function renderPrompts() {
+  
+  const $shelf = $("#promptShelf").empty();
+  
+  $("#promptCount").text(`${appData.prompts.length}개`);
+  
+  appData.prompts.forEach((prompt, index) => $shelf.append(`<article class="prompt-item ${String(index) === $("#editingPromptIndex").val() ? "active" : ""}" data-index="${index}"><strong>${prompt.title}</strong><button class="delete-prompt" type="button" aria-label="${prompt.title} 삭제">X</button></article>`));
+}
+
+/* 홈검색 : 검색 조건 모음. */
+function getSearchFilters() {
+  return {
+    cost: $("input[name='cost']:checked").val(), field: $("#fieldFilter").val(), language: $("#languageFilter").val(),
+ goal: $("#goalInput").val().trim().toLowerCase()
+  }
+  ;
+  
+}
+
+/* 홈검색 : 목표 관련성 확인함. */
+function matchesGoal(tool, goal) {
+  
+  if (!goal) return true;
+  
+  const inferred = parseGoal(goal);
+  
+  return tool.fields.some((field) => inferred.fields.includes(field)) || tool.languages.some((language) => inferred.languages.includes(language)) || inferred.categories.includes(getToolCategory(tool)) || tool.name.toLowerCase().includes(goal);
+}
+
+/* 홈추천 : 점수순 정렬함. */
+function getRecommendedTools() {
+  
+  const filters = getSearchFilters();
+  
+  return appData.tools.filter((tool) => (filters.cost === "all" || tool.cost === filters.cost) && hasField(tool,
+ filters.field) && (filters.language === "all" || tool.languages.includes(filters.language)) && supportsOs(tool) && matchesGoal(tool,
+ filters.goal)).sort((a, b) => getToolScore(b, filters.goal) - getToolScore(a, filters.goal));
+}
+
+/* 홈추천 : OS 지원 확인함. */
+function supportsOs(tool) {
+  return (osCompatibility[tool.name] || allOs).includes(appData.selectedOs);
+  
+}
+
+/* 홈추천 : 관련도 점수 계산함. */
+function getToolScore(tool, goal) {
+  
+  const inferred = parseGoal(goal);
+  
+  let score = getLanguageScore(tool, goal);
+  
+  if (goal && tool.name.toLowerCase().includes(goal)) score += 26;
+  
+  if (tool.category === "language" && tool.languages.some((language) => inferred.languages.includes(language))) score += 18;
+  
+  score += tool.fields.filter((field) => inferred.fields.includes(field)).length * 8;
+  
+  score += tool.languages.filter((language) => inferred.languages.includes(language)).length * 7;
+  
+  if (inferred.categories.includes(getToolCategory(tool))) score += 6;
+  
+  if (tool.cost === "free") score += 1;
+  
+  if (tool.type === "dev") score += 1;
+  
+  return score;
+}
+
+/* 홈추천 : 언어 우선순위 계산함. */
+function getLanguageScore(tool, goal) {
+  
+  const matched = languagePriorityRules.find((set) => hasAny(goal, set.words));
+  
+  const index = matched ? matched.order.indexOf(tool.name) : -1;
+  
+  return index === -1 ? 0 : 80 - index * 12;
+}
+
+/* 홈검색 : 키워드 신호 추출함. */
+function parseGoal(goal) {
+  
+  const signals = {
+    fields: [], languages: [], categories: []
+  }
+  ;
+  
+  goalKeywordRules.forEach((rule) => {
+    
+    if (!hasAny(goal, rule.words)) return;
+    
+    signals.fields.push(...(rule.fields || []));
+    
+    signals.languages.push(...(rule.languages || []));
+    
+    signals.categories.push(...(rule.categories || []));
+  }
+  );
+  
+  signals.fields = unique(signals.fields);
+  
+  signals.languages = unique(signals.languages);
+  
+  signals.categories = unique(signals.categories);
+  
+  return signals;
+}
+
+/* 홈추천 : 추천 결과 출력함. */
+function renderSearchResults() {
+  
+  if (!appData.hasSearched) {
+    $("#recommendList").prop("hidden", true).empty();
+    return;
+    
+  }
+  
+  const $target = $("#recommendList").prop("hidden", false).empty();
+  
+  const list = getRecommendedTools();
+  
+  if (!list.length) {
+    $target.append('<article class="recommend-card"><div class="card-main"><div class="card-top"><h3>조건에 맞는 추천이 없습니다</h3></div><p>OS, 분야, 언어 필터를 줄이거나 목표를 조금 더 구체적으로 입력해 보세요.</p></div></article>');
+    return;
+    
+  }
+  
+  renderRecommendationGroup($target, "개발앱 추천", getTopRecommendations(list, "dev"));
+  
+  renderRecommendationGroup($target, "AI 추천", getTopRecommendations(list, "ai"));
+}
+
+/* 홈추천 : 상위 3개 선택함. */
+function getTopRecommendations(list, type) {
+  return list.filter((tool) => tool.type === type).slice(0, 3);
+  
+}
+
+/* 홈추천 : 추천 카드 추가함. */
+function renderRecommendationGroup($target, title, tools) {
+  
+  if (!tools.length) return;
+  
+  const $group = $(`<section class="recommend-group"><h3>${title}</h3></section>`);
+  
+  tools.forEach((tool) => {
+    
+    const actionMarkup = appData.installedTools.includes(tool.name) ? '<span class="installed-mark">✓ 세팅 완료</span>' : `<a class="download-btn" href="${tool.url}" target="_blank" rel="noopener">원클릭 다운로드</a>`;
+    
+    $group.append(`<article class="recommend-card"><img class="tool-icon" src="${tool.icon}" alt="${tool.name} 아이콘"><div class="card-main"><div class="card-top"><h3>${tool.name}</h3><div class="badge-row"><span class="badge ${tool.cost === "paid" ? "paid" : ""}">${tool.cost === "free" ? "무료" : "유료 포함"}</span></div></div><p>${tool.summary}</p><p class="version-note">추천: ${tool.recommendedVersion || "최신 안정판"}</p></div><div class="card-actions">${actionMarkup}</div></article>`);
+  }
+  );
+  
+  $target.append($group);
+}
+
 const appData = {
   
-  /* 도구 데이터 : 검색, 추천, 도구 모음에 사용하는 전체 도구 목록입니다. */
+  /* 데이터 : 전체 도구 목록 보관함. */
   tools: [
   [
   "LM Studio",
@@ -795,22 +1479,26 @@ const appData = {
   
 }
 ;
+/* 데이터 : 분야 이름 보관함. */
 const fieldLabels = {
   web: "웹/앱 개발", app: "앱 개발", data: "인공지능/데이터", game: "게임 개발", ai: "인공지능/데이터", security: "보안", system: "시스템/인프라",
  collab: "개발 협업", embedded: "임베디드/하드웨어", database: "데이터베이스/정보관리", media: "그래픽/미디어", ui: "UI/프론트 개발"
 }
 ;
 
+/* 데이터 : 언어 이름 보관함. */
 const languageLabels = {
   javascript: "HTML/CSS/JavaScript", typescript: "TypeScript", python: "Python", java: "Java", kotlin: "Kotlin", csharp: "C#", c: "C/C++", sql: "SQL"
 }
 ;
 
+/* 데이터 : OS 이름 보관함. */
 const osLabels = {
   windows: "Windows", mac: "macOS", linux: "Linux"
 }
 ;
 
+/* 데이터 : OS 지원 기준 보관함. */
 const osCompatibility = {
   "Visual Studio Community": ["windows"], "MinGW-w64": ["windows"], "WSL2 + Ubuntu": ["windows"], "GitHub Desktop": ["windows",
  "mac"], "Ubuntu Desktop": ["linux"], GCC: ["linux", "mac"], "Android Studio": ["windows", "mac", "linux"], "Apache HTTP Server": ["windows", "mac", "linux"],
@@ -818,26 +1506,33 @@ const osCompatibility = {
 }
 ;
 
+/* 데이터 : 도구 분류 이름 보관함. */
 const toolCategoryLabels = {
   ide: "IDE / 개발환경", web: "웹 / 앱 개발", ai: "AI", review: "코드 리뷰 / 품질 개선", test: "테스트 / 자동화", data: "SQL / 데이터 작업",
  system: "시스템 / 인프라", ui: "UI / 프론트 개발", collab: "협업", embedded: "임베디드 / 하드웨어", media: "그래픽 / 미디어", security: "보안", game: "게임 / 기타"
 }
 ;
 
+/* 데이터 : 도구 분류 순서 보관함. */
 const toolCategoryOrder = ["ide", "web", "ai", "system", "data", "ui", "collab", "review", "test", "security", "embedded",
  "media", "game"];
 
+/* 데이터 : 사용 언어 옵션 보관함. */
 const languageOptions = ["C", "C++", "C#", "Java", "Kotlin", "Python", "HTML/CSS/JavaScript", "TypeScript", "SQL"];
 
+/* 데이터 : 학습 분야 옵션 보관함. */
 const studyFields = ["web", "ai", "system", "security", "embedded", "database", "media", "game", "collab"];
 
+/* 데이터 : 관련 분야 묶음 보관함. */
 const fieldGroups = {
   web: ["web", "app"], ai: ["ai", "data"], database: ["database", "data"]
 }
 ;
 
+/* 데이터 : AI 기본 분야 확장함. */
 const aiDefaultFields = [...new Set([...studyFields, "app", "data", "ui"])];
 
+/* 데이터 : AI 기본 언어 확장함. */
 const aiDefaultLanguages = Object.keys(languageLabels);
 
 appData.tools.forEach((tool) => {
@@ -851,623 +1546,14 @@ appData.tools.forEach((tool) => {
 }
 );
 
+/* 데이터 : 전체 OS 목록 만듦. */
 const allOs = Object.keys(osLabels);
 
+/* 데이터 : 도구 이름 빠르게 찾음. */
 const toolMap = new Map(appData.tools.map((tool) => [tool.name, tool]));
 
-/* 공통 유틸 함수 : 문장 안에 지정한 단어가 포함되는지 확인합니다. */
-function hasAny(text, words = []) {
-  return words.some((word) => text.includes(word));
-  
-}
-
-/* 공통 유틸 함수 : 빈 값과 중복 값을 제거합니다. */
-function unique(items) {
-  return [...new Set(items.filter(Boolean))];
-  
-}
-
-/* 공통 유틸 함수 : select 요소에 옵션 목록을 채웁니다. */
-function fillSelect($select, options, allLabel, selectedValue, getLabel = (value) => value, allValue = "all") {
-  
-  $select.empty().append($("<option>", {
-    value: allValue, text: allLabel
-  }
-  ));
-  
-  options.forEach((value) => $select.append($("<option>", {
-    value, text: getLabel(value)
-  }
-  )));
-  
-  $select.val(options.includes(selectedValue) ? selectedValue : allValue);
-  refreshSelect2($select);
-}
-
-/* 계정 관리 함수 : 회원가입한 계정 목록을 읽습니다. */
-function loadAccounts() {
-  return loadJson("aiGuideAccounts", {
-    
-  }
-  );
-  
-}
-
-/* 계정 관리 함수 : 회원가입한 계정 목록을 저장합니다. */
-function saveAccounts(accounts) {
-  localStorage.setItem("aiGuideAccounts", JSON.stringify(accounts));
-  
-}
-
-/* 계정 관리 함수 : 상단 로그인/로그아웃 상태를 갱신합니다. */
-function renderAuth() {
-  
-  const user = appData.currentUser;
-  
-  $("#authUserText").text(user ? `${user}님` : "").prop("hidden", !user);
-  
-  $("#authOpen").prop("hidden", Boolean(user));
-  
-  $("#logoutButton").prop("hidden", !user);
-}
-
-/* 계정 관리 함수 : 로그인과 회원가입 화면을 전환합니다. */
-function setAuthMode(mode) {
-  
-  const isSignup = mode === "signup";
-  
-  $("#authTitle").text(isSignup ? "회원가입" : "로그인");
-  
-  $("#loginForm").prop("hidden", isSignup);
-  
-  $("#signupForm").prop("hidden", !isSignup);
-  
-  $("#authSwitchText").html(`<button id="authModeToggle" type="button">${isSignup ? "로그인" : "회원가입"}</button>`);
-  
-  showAuthMessage("");
-}
-
-/* 계정 관리 함수 : 로그인 계정이 바뀌면 개인 데이터를 다시 불러옵니다. */
-function reloadUserData() {
-  
-  appData.records = loadJson("llmRecords", []);
-  
-  appData.prompts = loadJson("llmPrompts", []);
-  
-  appData.installedTools = loadJson("installedTools", []);
-  
-  appData.languageSettings = loadJson("languageSettings", {
-    
-  }
-  );
-  
-  appData.expandedRecordIndex = null;
-  
-  resetForm("#recordForm", "#editingRecordIndex");
-  
-  resetForm("#promptForm", "#editingPromptIndex");
-  
-  renderUserViews();
-}
-
-/* 계정 관리 함수 : 로그인과 회원가입 결과 문구를 표시합니다. */
-function showAuthMessage(message) {
-  $("#authMessage").text(message);
-  
-}
-
-/* 화면 갱신 함수 : 개인 데이터와 관련된 화면을 한 번에 다시 그립니다. */
-function renderUserViews() {
-  [renderAuth, renderRecordFormOptions, renderRecords, renderPrompts, renderSetupChecklist, renderLanguageChecklist,
- renderSearchResults].forEach((render) => render());
-  
-}
-
-/* 공통 폼 함수 : 입력 폼과 숨겨진 편집 번호를 함께 비웁니다. */
-function resetForm(formSelector, indexSelector = "") {
-  if (indexSelector) $(indexSelector).val("");
-  $(formSelector)[0]?.reset();
-  $(formSelector).find("select").each(function () {
-    refreshSelect2($(this));
-  });
-  
-}
-
-/* 공통 팝업 함수 : 지정한 팝업을 숨깁니다. */
-function closePopup(selector) {
-  $(selector).prop("hidden", true);
-  
-}
-
-/* 플러그인 함수 : jQuery Easing으로 화면 상단 이동을 부드럽게 처리합니다. */
-function scrollToTop() {
-  $("html, body").stop().animate({ scrollTop: 0 }, 520, "easeOutCubic");
-}
-
-/* 플러그인 함수 : Select2가 적용된 select의 화면 값을 갱신합니다. */
-function refreshSelect2($select) {
-  if ($.fn.select2 && $select.hasClass("select2-hidden-accessible")) $select.trigger("change.select2");
-}
-
-/* 플러그인 함수 : 주요 선택 박스에 Select2 검색 UI를 적용합니다. */
-function initSelect2Controls() {
-  if (!$.fn.select2) return;
-  const selectors = [
-    "#fieldFilter", "#languageFilter", "#toolboxLanguageFilter", "#toolboxFieldFilter",
-    "#aiCompareFirst", "#aiCompareSecond", "#recordField", "#recordLanguage",
-    "#recordFieldFilter", "#recordLanguageFilter"
-  ].join(", ");
-  
-  $(selectors).each(function () {
-    const $select = $(this);
-    if ($select.hasClass("select2-hidden-accessible")) return;
-    $select.select2({
-      width: "100%",
-      minimumResultsForSearch: 6
-    });
-  });
-}
-
-/* 플러그인 함수 : jQuery Validation으로 입력 폼의 필수값을 검사합니다. */
-function initFormValidation() {
-  if (!$.fn.validate) return;
-  const common = {
-    errorClass: "form-error",
-    errorElement: "small",
-    highlight(element) {
-      $(element).attr("aria-invalid", "true");
-    },
-    unhighlight(element) {
-      $(element).removeAttr("aria-invalid");
-    }
-  };
-  
-  $("#signupForm").validate({
-    ...common,
-    rules: { signupId: "required", signupPassword: { required: true, minlength: 4 } },
-    messages: { signupId: "아이디를 입력하세요.", signupPassword: { required: "비밀번호를 입력하세요.", minlength: "비밀번호는 4자 이상 입력하세요." } }
-  });
-  
-  $("#loginForm").validate({
-    ...common,
-    rules: { loginId: "required", loginPassword: "required" },
-    messages: { loginId: "아이디를 입력하세요.", loginPassword: "비밀번호를 입력하세요." }
-  });
-  
-  $("#recordForm").validate({
-    ...common,
-    rules: { recordContent: "required" },
-    messages: { recordContent: "학습 내용을 입력하세요." }
-  });
-  
-  $("#promptForm").validate({
-    ...common,
-    rules: { promptTitle: "required", promptText: "required" },
-    messages: { promptTitle: "프롬프트 제목을 입력하세요.", promptText: "프롬프트 내용을 입력하세요." }
-  });
-}
-
-/* 공통 필터 함수 : 도구가 선택한 공부 분야에 포함되는지 확인합니다. */
-function hasField(tool, field) {
-  return field === "all" || (fieldGroups[field] || [field]).some((item) => tool.fields.includes(item));
-  
-}
-const toolboxStages = [
-{
-  title: "1단계: 최소 개발환경", subtitle: "기초 개발환경", goal: "",
- dev: ["Visual Studio Code", "Google Chrome", "Python", "JDK", "Eclipse IDE", "Visual Studio Community", "Jupyter Notebook",
- "MySQL", "Markdown", "Git", "GCC", "MinGW-w64"], ai: ["ChatGPT", "GitHub Copilot", "Gemini", "Claude", "OpenAI Codex"]
-}
-,
-{
-  title: "2단계: 개발자 기본 세팅", subtitle: "과제와 개인 프로젝트가 가능한 수준", goal: "프로젝트 관리, Git 사용, 리눅스 환경 익숙해지기", dev: ["IntelliJ IDEA Community",
- "PyCharm Community", "Ubuntu Desktop", "WSL2 + Ubuntu", "Terminal (Zsh/Bash)", "GitHub", "GitHub Desktop", "GitFlow", "Burp Suite Community",
- "Node.js", "TypeScript", "Vite", "React", "Vue", "Tailwind CSS", "Next.js", "Figma", "Storybook", "ESLint", "Prettier", "Postman", "FastAPI", "Spring Boot", "Android Studio", "Kotlin",
- "pandas", "NumPy", "Matplotlib", "scikit-learn", "PostgreSQL", "Redis", "Apache HTTP Server", "Docker", "Chrome Lighthouse", "Jest", "Vitest", "Pytest"], ai: ["Continue", "Cursor", "Codeium / Windsurf",
- "Phind", "Gemma", "Google Stitch", "LM Studio", "Jan", "GPT4All", "Ollama"]
-}
-,
-{
-  title: "3단계: 실전 개발 세팅", subtitle: "취업, 팀 프로젝트, 고급 개발에 선택적으로 추가", goal: "협업, 테스트 자동화, 실무 툴 경험", dev: ["Playwright",
-"SonarQube", "Cypress", "DataGrip", "TablePlus", "MongoDB", "Vector DB (Chroma/Pinecone)", "Firebase", "React Native", "Flutter", "PyTorch", "TensorFlow",
-"Nginx", "Amazon Web Services", "Kubernetes", "Terraform", "GitHub Actions", "Arduino", "FreeRTOS", "PlatformIO", "KiCad", "Unity", "Godot", "Unreal Engine", "Photoshop", "Blender", "OWASP ZAP", "Wireshark",
-"Nmap", "Metasploit Framework", "Kali Linux", "Notion Desktop", "Slack", "Microsoft Teams", "Confluence", "Jira"], ai: ["Amazon Q Developer",
-"Snyk Code / DeepCode", "Qodo / CodiumAI", "Testim", "Figma AI", "Uizard", "Notion AI", "Claude Code", "v0.dev", "LangChain", "Hugging Face", "OpenAI API"]
-}
-
-];
-/* 도구 모음 함수 : 단계별 보기와 전체보기를 다시 그립니다. */
-function renderToolbox() {
-  
-  const $target = $("#toolboxStageList").empty();
-  
-  const filters = getToolboxFilters();
-  
-  if (filters.view === "all") {
-    renderToolboxAll($target, toolboxStages, filters);
-    renderToolboxNav();
-    return;
-    
-  }
-  
-  const activeStage = toolboxStages[appData.activeToolboxStage] || toolboxStages[0];
-  const visibleStages = activeStage ? [{
-    stage: activeStage,
-    devTools: getToolboxTools(activeStage.dev, "dev", filters),
-    aiTools: getToolboxTools(activeStage.ai, "ai", filters)
-  }] : [];
-  
-  visibleStages.forEach((item) => {
-    
-    const $stage = $(`<article class="toolbox-stage panel"><div class="toolbox-stage-head"><div><p class="eyebrow">${item.stage.subtitle}</p><h3>${item.stage.title}</h3></div></div><div class="toolbox-columns"></div></article>`);
-    
-    renderToolboxGroup($stage.find(".toolbox-columns"), "개발 프로그램", item.devTools);
-    
-    renderToolboxGroup($stage.find(".toolbox-columns"), "AI", item.aiTools);
-    
-    $target.append($stage);
-  }
-  );
-  
-  renderToolboxNav();
-}
-
-/* 도구 모음 함수 : 전체보기와 단계별 보기 전환 텍스트를 그립니다. */
-function renderToolboxNav() {
-  
-  const view = appData.toolboxView || "stage";
-  const activeStage = appData.activeToolboxStage || 0;
-  const stageOpenClass = view === "stage" ? " open" : "";
-  const $nav = $("#toolboxStageNav").empty();
-  
-  $nav.append(`<button class="${view === "all" ? "active" : ""}" type="button" data-view="all">전체보기</button>`);
-  $nav.append("<hr>");
-  $nav.append(`<button class="stage-toggle ${view === "stage" ? "active" : ""}" type="button" data-view="stage" aria-expanded="${view === "stage"}">단계별 보기</button>`);
-  
-  const $stageList = $(`<div class="toolbox-step-list${stageOpenClass}" aria-label="단계 선택"></div>`);
-  toolboxStages.forEach((stage, index) => {
-    const shortTitle = `${index + 1}단계`;
-    $stageList.append(`<button class="step-button ${view === "stage" && activeStage === index ? "active" : ""}" type="button" data-stage="${index}">${shortTitle}</button>`);
-  });
-  $nav.append($stageList);
-}
-
-/* 도구 모음 함수 : 전체보기에서 개발 프로그램과 AI를 나누어 출력합니다. */
-function renderToolboxAll($target, stages, filters) {
-  
-  const devTools = [], aiTools = [];
-  
-  stages.forEach((stage) => {
-    devTools.push(...getToolboxTools(stage.dev, "dev", filters));
-    aiTools.push(...getToolboxTools(stage.ai, "ai", filters));
-    
-  }
-  );
-  
-  const $stage = $('<article class="toolbox-stage panel" id="toolbox-all"><div class="toolbox-stage-head"><div><p class="eyebrow">All Tools</p><h3>전체보기</h3></div></div><div class="toolbox-all-columns"></div></article>');
-  
-  renderToolboxGroup($stage.find(".toolbox-all-columns"), "개발 프로그램", uniqueTools(devTools), {
-    sectionClass: "toolbox-all-section", gridClass: "toolbox-all-grid"
-  }
-  );
-  
-  renderToolboxGroup($stage.find(".toolbox-all-columns"), "AI", uniqueTools(aiTools), {
-    sectionClass: "toolbox-all-section", gridClass: "toolbox-all-grid"
-  }
-  );
-  
-  $target.append($stage);
-}
-
-/* 도구 모음 함수 : 같은 도구가 여러 단계에 있어도 한 번만 보이게 합니다. */
-function uniqueTools(tools) {
-  return [...new Map(tools.map((tool) => [tool.name, tool])).values()];
-  
-}
-
-/* 도구 모음 함수 : 필터의 현재 선택 값을 모읍니다. */
-function getToolboxFilters() {
-  return {
-    kind: $("input[name='toolboxKind']:checked").val() || "all", language: $("#toolboxLanguageFilter").val() || "all",
- field: $("#toolboxFieldFilter").val() || "all", view: appData.toolboxView || "stage"
-  }
-  ;
-  
-}
-
-/* 도구 모음 함수 : 도구 이름을 데이터로 바꾸고 필터를 적용합니다. */
-function getToolboxTools(toolNames, kind, filters) {
-  return filters.kind !== "all" && filters.kind !== kind ? [] : toolNames.map((name) => toolMap.get(name)).filter(Boolean).filter((tool) => filters.language === "all" || tool.languages.includes(filters.language)).filter((tool) => hasField(tool,
- filters.field));
-  
-}
-
-/* 도구 모음 함수 : 언어와 공부 분야 필터 옵션을 채웁니다. */
-function renderToolboxFilters() {
-  
-  fillSelect($("#toolboxLanguageFilter"), unique(appData.tools.flatMap((tool) => tool.languages)), "전체 언어", "all",
- (language) => languageLabels[language] || language);
-  
-  fillSelect($("#toolboxFieldFilter"), studyFields, "전체 분야", "all", (field) => fieldLabels[field] || field);
-}
-
-/* AI 비교 함수 : 비교 가능한 AI 선택 옵션을 만듭니다. */
-function renderAiCompareOptions() {
-  
-  const aiTools = appData.tools.filter((tool) => tool.type === "ai" || tool.category === "ai").sort((a, b) => a.name.localeCompare(b.name,
- "ko"));
-  
-  const $first = $("#aiCompareFirst").empty(), $second = $("#aiCompareSecond").empty();
-  
-  aiTools.forEach((tool) => {
-    $first.append($("<option>", {
-      value: tool.name, text: tool.name
-    }
-    ));
-    $second.append($("<option>", {
-      value: tool.name, text: tool.name
-    }
-    ));
-    
-  }
-  );
-  
-  $second.val(aiTools[1]?.name || aiTools[0]?.name || "");
-  refreshSelect2($first);
-  refreshSelect2($second);
-  
-  renderAiCompare();
-}
-
-/* AI 비교 함수 : 선택한 두 AI의 이름, 특징, 비용을 표로 비교합니다. */
-function renderAiCompare() {
-  
-  const first = toolMap.get($("#aiCompareFirst").val()), second = toolMap.get($("#aiCompareSecond").val());
-  
-  const costText = (tool) => (!tool ? "-" : tool.cost === "free" ? "무료" : "유료 포함");
-  
-  $("#aiCompareResult").html([["이름", first?.name || "-", second?.name || "-"], ["특징", first?.summary || "-", second?.summary || "-"],
- ["비용", costText(first), costText(second)]].map((row) => `<tr><th>${row[0]}</th><td>${row[1]}</td><td>${row[2]}</td></tr>`).join(""));
-}
-
-/* 도구 카드 함수 : 개발 프로그램 또는 AI 카드 묶음을 출력합니다. */
-function renderToolboxGroup($target, title, tools, options = {
-  
-}
-) {
-  
-  const sectionClass = options.sectionClass || "toolbox-group", gridClass = options.gridClass || "toolbox-grid";
-  
-  const $group = $(`<section class="${sectionClass}"><h4>${title}</h4><div class="${gridClass}"></div></section>`);
-  
-  if (!tools.length) $group.find(`.${gridClass}`).append('<p class="toolbox-empty">현재 필터에 맞는 도구가 없습니다.</p>');
-  
-  tools.forEach((tool) => $group.find(`.${gridClass}`).append(getToolboxCard(tool)));
-  
-  $target.append($group);
-}
-
-/* 도구 카드 함수 : 도구 하나의 카드 HTML 문자열을 만듭니다. */
-function getToolboxCard(tool) {
-  return `<a class="toolbox-card" href="${tool.url}" target="_blank" rel="noopener noreferrer"><div class="toolbox-card-top"><img src="${tool.icon}" alt="${tool.name} 아이콘"><div><strong>${tool.name}</strong><span>${tool.cost === "free" ? "무료" : "유료 포함"}</span></div></div><p>${tool.summary}</p></a>`;
-  
-}
-
-/* 도구 분류 함수 : 설정 화면에서 사용할 도구 카테고리를 결정합니다. */
-function getToolCategory(tool) {
-  return ["ide", "language", "system"].includes(tool.category) ? "ide" : (tool.category || (tool.type === "ai" ? "ai" : "ide"));
-  
-}
-
-/* 내 설정 함수 : 개발환경 준비 체크리스트를 카테고리별로 출력합니다. */
-function renderSetupChecklist() {
-  
-  const $target = $("#setupChecklist").empty(), groups = {
-    
-  }
-  ;
-  
-  appData.tools.forEach((tool) => {
-    const category = getToolCategory(tool);
-    groups[category] = groups[category] || [];
-    groups[category].push(tool);
-    
-  }
-  );
-  
-  toolCategoryOrder.forEach((category) => {
-    
-    const tools = groups[category] || [];
-    
-    if (!tools.length) return;
-    
-    const $section = $(`<section class="tool-category"><h3>${toolCategoryLabels[category] || category}</h3><div class="tool-category-grid"></div></section>`);
-    
-    tools.forEach((tool) => $section.find(".tool-category-grid").append(`<label class="setup-item"><input type="checkbox" value="${tool.name}" ${appData.installedTools.includes(tool.name) ? "checked" : ""}><span>${tool.name}</span></label>`));
-    
-    $target.append($section);
-  }
-  );
-  
-  $("#setupCount").text(`${appData.installedTools.length}개 완료`);
-}
-
-/* 내 설정 함수 : 사용 언어와 숙련도 선택 목록을 출력합니다. */
-function renderLanguageChecklist() {
-  
-  const $target = $("#languageChecklist").empty();
-  
-  languageOptions.forEach((language) => {
-    
-    const setting = appData.languageSettings[language] || {
-      checked: false, level: "기초"
-    }
-    ;
-    
-    $target.append(`<div class="language-item"><label><input type="checkbox" value="${language}" ${setting.checked ? "checked" : ""}><span>${language}</span></label><select data-language="${language}"><option value="기초" ${setting.level === "기초" ? "selected" : ""}>기초</option><option value="중급" ${setting.level === "중급" ? "selected" : ""}>중급</option><option value="심화" ${setting.level === "심화" ? "selected" : ""}>심화</option></select></div>`);
-  }
-  );
-  
-  $("#languageCount").text(`${Object.values(appData.languageSettings).filter((item) => item.checked).length}개 선택`);
-}
-
-/* 학습 기록 함수 : 저장된 기록 기준으로 분야와 언어 필터를 채웁니다. */
-function updateRecordFilterOptions() {
-  
-  fillSelect($("#recordFieldFilter"), unique([...studyFields, ...appData.records.map((record) => getRecordField(record))]),
- "전체 분야", $("#recordFieldFilter").val() || "all", (field) => fieldLabels[field] || field);
-  
-  fillSelect($("#recordLanguageFilter"), unique([...languageOptions, ...appData.records.map((record) => getRecordLanguage(record))]),
- "전체 언어", $("#recordLanguageFilter").val() || "all");
-}
-
-/* 학습 기록 함수 : 저장 폼의 분야와 언어 선택 옵션을 채웁니다. */
-function renderRecordFormOptions() {
-  
-  fillSelect($("#recordField"), studyFields, "공부 분야 선택", $("#recordField").val() || "", (field) => fieldLabels[field] || field,
- "");
-  
-  fillSelect($("#recordLanguage"), Object.keys(languageLabels), "사용 언어 선택", $("#recordLanguage").val() || "", (language) => languageLabels[language],
- "");
-}
-
-/* 학습 기록 함수 : 기록 객체에서 학습 분야 값을 가져옵니다. */
-function getRecordField(record) {
-  const field = record.field || parseGoal(`${record.title || ""} ${record.content || ""}`).fields[0] || "";
-  return field === "data" ? "ai" : field === "app" ? "web" : field;
-  
-}
-
-/* 학습 기록 함수 : 기록 객체에서 학습 언어 값을 가져옵니다. */
-function getRecordLanguage(record) {
-  if (record.language) return languageLabels[record.language] || record.language;
-  const language = parseGoal(`${record.title || ""} ${record.content || ""}`).languages[0] || "";
-  return languageLabels[language] || language;
-  
-}
-
-/* 학습 기록 함수 : 필터에 맞는 학습 기록 카드를 출력합니다. */
-function renderRecords() {
-  updateRecordFilterOptions();
-
-  const $list = $("#recordList").empty();
-  const searchFilter = ($("#recordSearchFilter").val() || "").trim().toLowerCase();
-  const fieldFilter = $("#recordFieldFilter").val() || "all";
-  const languageFilter = $("#recordLanguageFilter").val() || "all";
-
-  const filteredRecords = appData.records
-    .map((record, index) => ({ ...record, index }))
-    .filter((record) => !searchFilter || getRecordSearchText(record).includes(searchFilter))
-    .filter((record) => fieldFilter === "all" || getRecordField(record) === fieldFilter)
-    .filter((record) => languageFilter === "all" || getRecordLanguage(record) === languageFilter);
-
-  $("#recordCount").text(`${filteredRecords.length}개`);
-
-  filteredRecords.forEach((record) => {
-    const active = String(record.index) === $("#editingRecordIndex").val() ? "active" : "";
-    const expanded = record.index === appData.expandedRecordIndex ? "expanded" : "";
-    $list.append(`
-      <li class="${active} ${expanded}" data-index="${record.index}">
-        <div class="record-card-top">
-          <strong>${record.title}</strong>
-          <div>
-            <span class="record-date">${record.date}</span>
-            <button class="delete-prompt delete-record" type="button" aria-label="학습 기록 삭제">X</button>
-          </div>
-        </div>
-        <div class="record-detail">
-          <div class="record-meta">
-            <span>${fieldLabels[getRecordField(record)] || "분야 미정"}</span>
-            <span>${getRecordLanguage(record) || "언어 미정"}</span>
-            <span>${record.ai || "AI 미정"}</span>
-          </div>
-          <p>${record.content || record.title}</p>
-        </div>
-      </li>
-    `);
-  });
-}
-
-/* 학습 기록 함수 : 기록 검색에 사용할 텍스트를 하나로 합칩니다. */
-function getRecordSearchText(record) {
-  return [record.title, record.content, record.ai, getRecordLanguage(record), fieldLabels[getRecordField(record)]].join(" ").toLowerCase();
-  
-}
-
-/* 프롬프트 보관함 함수 : 저장된 프롬프트 제목 목록을 출력합니다. */
-function renderPrompts() {
-  
-  const $shelf = $("#promptShelf").empty();
-  
-  $("#promptCount").text(`${appData.prompts.length}개`);
-  
-  appData.prompts.forEach((prompt, index) => $shelf.append(`<article class="prompt-item ${String(index) === $("#editingPromptIndex").val() ? "active" : ""}" data-index="${index}"><strong>${prompt.title}</strong><button class="delete-prompt" type="button" aria-label="${prompt.title} 삭제">X</button></article>`));
-}
-
-/* 홈 검색 함수 : 추천 검색에 사용할 필터와 입력 목표를 수집합니다. */
-function getSearchFilters() {
-  return {
-    cost: $("input[name='cost']:checked").val(), field: $("#fieldFilter").val(), language: $("#languageFilter").val(),
- goal: $("#goalInput").val().trim().toLowerCase()
-  }
-  ;
-  
-}
-
-/* 홈 검색 함수 : 도구가 입력 목표와 관련 있는지 확인합니다. */
-function matchesGoal(tool, goal) {
-  
-  if (!goal) return true;
-  
-  const inferred = parseGoal(goal);
-  
-  return tool.fields.some((field) => inferred.fields.includes(field)) || tool.languages.some((language) => inferred.languages.includes(language)) || inferred.categories.includes(getToolCategory(tool)) || tool.name.toLowerCase().includes(goal);
-}
-
-/* 홈 추천 함수 : 조건에 맞는 도구를 점수순으로 정렬합니다. */
-function getRecommendedTools() {
-  
-  const filters = getSearchFilters();
-  
-  return appData.tools.filter((tool) => (filters.cost === "all" || tool.cost === filters.cost) && hasField(tool,
- filters.field) && (filters.language === "all" || tool.languages.includes(filters.language)) && supportsOs(tool) && matchesGoal(tool,
- filters.goal)).sort((a, b) => getToolScore(b, filters.goal) - getToolScore(a, filters.goal));
-}
-
-/* 홈 추천 함수 : 현재 선택한 OS에서 사용할 수 있는 도구인지 확인합니다. */
-function supportsOs(tool) {
-  return (osCompatibility[tool.name] || allOs).includes(appData.selectedOs);
-  
-}
-
-/* 홈 추천 함수 : 입력 목표와 도구의 관련도를 점수로 계산합니다. */
-function getToolScore(tool, goal) {
-  
-  const inferred = parseGoal(goal);
-  
-  let score = getLanguageScore(tool, goal);
-  
-  if (goal && tool.name.toLowerCase().includes(goal)) score += 26;
-  
-  if (tool.category === "language" && tool.languages.some((language) => inferred.languages.includes(language))) score += 18;
-  
-  score += tool.fields.filter((field) => inferred.fields.includes(field)).length * 8;
-  
-  score += tool.languages.filter((language) => inferred.languages.includes(language)).length * 7;
-  
-  if (inferred.categories.includes(getToolCategory(tool))) score += 6;
-  
-  if (tool.cost === "free") score += 1;
-  
-  if (tool.type === "dev") score += 1;
-  
-  return score;
-}
-
-/* 홈 추천 함수 : 특정 언어 검색에서 우선 추천 도구에 가중치를 줍니다. */
-function getLanguageScore(tool, goal) {
-  
-  const prioritySets = [
+/* 데이터 : 언어별 추천 우선순위 보관함. */
+const languagePriorityRules = [
   {
     words: ["웹", "웹개발", "웹 개발", "사이트", "html", "css", "프론트", "프론트엔드"], order: ["Visual Studio Code", "Google Chrome", "Vite", "Tailwind CSS"]
   }
@@ -1577,24 +1663,10 @@ function getLanguageScore(tool, goal) {
     words: ["임베디드", "하드웨어", "platformio", "kicad", "회로", "pcb"], order: ["Arduino", "PlatformIO", "KiCad", "FreeRTOS"]
   }
   
-  ];
-  
-  const matched = prioritySets.find((set) => hasAny(goal, set.words));
-  
-  const index = matched ? matched.order.indexOf(tool.name) : -1;
-  
-  return index === -1 ? 0 : 80 - index * 12;
-}
+  ];;
 
-/* 홈 검색 함수 : 입력 문장에서 분야, 언어, 카테고리 신호를 추출합니다. */
-function parseGoal(goal) {
-  
-  const signals = {
-    fields: [], languages: [], categories: []
-  }
-  ;
-  
-  [
+/* 데이터 : 검색 키워드 규칙 보관함. */
+const goalKeywordRules = [
   {
     words: ["웹", "앱", "사이트", "프론트", "html", "css", "javascript", "react", "vue", "node", "api", "vite", "lighthouse", "tailwind", "next", "storybook"], fields: ["web"],
  languages: ["javascript"], categories: ["ui", "test"]
@@ -1662,77 +1734,37 @@ function parseGoal(goal) {
     words: ["ui", "화면", "디자인", "프론트", "프로토타입", "와이어프레임", "figma", "storybook", "stitch", "스티치"], fields: ["web", "app"], categories: ["ui"]
   }
   
-  ].forEach((rule) => {
-    
-    if (!hasAny(goal, rule.words)) return;
-    
-    signals.fields.push(...(rule.fields || []));
-    
-    signals.languages.push(...(rule.languages || []));
-    
-    signals.categories.push(...(rule.categories || []));
-  }
-  );
-  
-  signals.fields = unique(signals.fields);
-  
-  signals.languages = unique(signals.languages);
-  
-  signals.categories = unique(signals.categories);
-  
-  return signals;
+  ];
+
+/* 데이터 : 단계별 도구 기준 보관함. */
+const toolboxStages = [
+{
+  title: "1단계: 최소 개발환경", subtitle: "기초 개발환경", goal: "",
+ dev: ["Visual Studio Code", "Google Chrome", "Python", "JDK", "Eclipse IDE", "Visual Studio Community", "Jupyter Notebook",
+ "MySQL", "Markdown", "Git", "GCC", "MinGW-w64"], ai: ["ChatGPT", "GitHub Copilot", "Gemini", "Claude", "OpenAI Codex"]
+}
+,
+{
+  title: "2단계: 개발자 기본 세팅", subtitle: "과제와 개인 프로젝트가 가능한 수준", goal: "프로젝트 관리, Git 사용, 리눅스 환경 익숙해지기", dev: ["IntelliJ IDEA Community",
+ "PyCharm Community", "Ubuntu Desktop", "WSL2 + Ubuntu", "Terminal (Zsh/Bash)", "GitHub", "GitHub Desktop", "GitFlow", "Burp Suite Community",
+ "Node.js", "TypeScript", "Vite", "React", "Vue", "Tailwind CSS", "Next.js", "Figma", "Storybook", "ESLint", "Prettier", "Postman", "FastAPI", "Spring Boot", "Android Studio", "Kotlin",
+ "pandas", "NumPy", "Matplotlib", "scikit-learn", "PostgreSQL", "Redis", "Apache HTTP Server", "Docker", "Chrome Lighthouse", "Jest", "Vitest", "Pytest"], ai: ["Continue", "Cursor", "Codeium / Windsurf",
+ "Phind", "Gemma", "Google Stitch", "LM Studio", "Jan", "GPT4All", "Ollama"]
+}
+,
+{
+  title: "3단계: 실전 개발 세팅", subtitle: "취업, 팀 프로젝트, 고급 개발에 선택적으로 추가", goal: "협업, 테스트 자동화, 실무 툴 경험", dev: ["Playwright",
+"SonarQube", "Cypress", "DataGrip", "TablePlus", "MongoDB", "Vector DB (Chroma/Pinecone)", "Firebase", "React Native", "Flutter", "PyTorch", "TensorFlow",
+"Nginx", "Amazon Web Services", "Kubernetes", "Terraform", "GitHub Actions", "Arduino", "FreeRTOS", "PlatformIO", "KiCad", "Unity", "Godot", "Unreal Engine", "Photoshop", "Blender", "OWASP ZAP", "Wireshark",
+"Nmap", "Metasploit Framework", "Kali Linux", "Notion Desktop", "Slack", "Microsoft Teams", "Confluence", "Jira"], ai: ["Amazon Q Developer",
+"Snyk Code / DeepCode", "Qodo / CodiumAI", "Testim", "Figma AI", "Uizard", "Notion AI", "Claude Code", "v0.dev", "LangChain", "Hugging Face", "OpenAI API"]
 }
 
-/* 홈 추천 함수 : 추천 결과 영역을 다시 그립니다. */
-function renderSearchResults() {
-  
-  if (!appData.hasSearched) {
-    $("#recommendList").prop("hidden", true).empty();
-    return;
-    
-  }
-  
-  const $target = $("#recommendList").prop("hidden", false).empty();
-  
-  const list = getRecommendedTools();
-  
-  if (!list.length) {
-    $target.append('<article class="recommend-card"><div class="card-main"><div class="card-top"><h3>조건에 맞는 추천이 없습니다</h3></div><p>OS, 분야, 언어 필터를 줄이거나 목표를 조금 더 구체적으로 입력해 보세요.</p></div></article>');
-    return;
-    
-  }
-  
-  renderRecommendationGroup($target, "개발앱 추천", getTopRecommendations(list, "dev"));
-  
-  renderRecommendationGroup($target, "AI 추천", getTopRecommendations(list, "ai"));
-}
+];
 
-/* 홈 추천 함수 : 개발 프로그램과 AI를 각각 최대 3개까지 가져옵니다. */
-function getTopRecommendations(list, type) {
-  return list.filter((tool) => tool.type === type).slice(0, 3);
-  
-}
-
-/* 홈 추천 함수 : 추천 카드 묶음을 화면에 추가합니다. */
-function renderRecommendationGroup($target, title, tools) {
-  
-  if (!tools.length) return;
-  
-  const $group = $(`<section class="recommend-group"><h3>${title}</h3></section>`);
-  
-  tools.forEach((tool) => {
-    
-    const actionMarkup = appData.installedTools.includes(tool.name) ? '<span class="installed-mark">✓ 세팅 완료</span>' : `<a class="download-btn" href="${tool.url}" target="_blank" rel="noopener">원클릭 다운로드</a>`;
-    
-    $group.append(`<article class="recommend-card"><img class="tool-icon" src="${tool.icon}" alt="${tool.name} 아이콘"><div class="card-main"><div class="card-top"><h3>${tool.name}</h3><div class="badge-row"><span class="badge ${tool.cost === "paid" ? "paid" : ""}">${tool.cost === "free" ? "무료" : "유료 포함"}</span></div></div><p>${tool.summary}</p><p class="version-note">추천: ${tool.recommendedVersion || "최신 안정판"}</p></div><div class="card-actions">${actionMarkup}</div></article>`);
-  }
-  );
-  
-  $target.append($group);
-}
-
-/* 이벤트 연결 함수 : 페이지 초기 렌더링과 사용자 입력 이벤트를 한곳에서 연결합니다. */
+/* 이벤트 : 초기 화면과 입력 연결함. */
 $(function () {
+  applyTheme(localStorage.getItem("aiGuideTheme") || "light");
   
   renderSearchResults();
   renderToolboxFilters();
@@ -1756,6 +1788,13 @@ $(function () {
   $(".site-footer a[href='#top'], .brand[href='#top']").on("click", function (event) {
     event.preventDefault();
     scrollToTop();
+  });
+
+  $("#themeToggle").on("click", function () {
+    const nextTheme = $("body").hasClass("dark-mode") ? "light" : "dark";
+    localStorage.setItem("aiGuideTheme", nextTheme);
+    applyTheme(nextTheme);
+    
   });
   
   $("#authOpen").on("click", function () {
@@ -2079,3 +2118,7 @@ $(function () {
   );
 }
 );
+
+
+
+
