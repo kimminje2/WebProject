@@ -10,6 +10,14 @@
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
   <link href="https://unpkg.com/@egjs/flicking/dist/flicking.css" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script defer src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js"></script>
+  <script defer src="https://unpkg.com/@egjs/flicking/dist/flicking.pkgd.min.js"></script>
+  <script defer src="js/script.js"></script>
+  <script defer src="js/app-data.js"></script>
+  <script defer src="js/app-init.js"></script>
 </head>
 <body>
   <header class="site-header" id="top">
@@ -412,7 +420,7 @@
         </article>
         <article class="panel helper-card">
           <h3>개발 질문 템플릿</h3>
-          <textarea class="template-box" rows="10">너는 초보 개발자를 돕는 시니어 개발 멘토야.
+          <textarea class="template-box" id="devQuestionTemplate" name="devQuestionTemplate" rows="10">너는 초보 개발자를 돕는 시니어 개발 멘토야.
 
 역할: [프론트엔드/백엔드/AI/보안] 전문가
 작업: [분석/설계/디버깅/리팩토링/학습 계획]을 해줘.
@@ -423,7 +431,7 @@
         </article>
         <article class="panel helper-card">
           <h3>컨텍스트 패키지 템플릿</h3>
-          <textarea class="template-box" rows="10">[목표]
+          <textarea class="template-box" id="contextPackageTemplate" name="contextPackageTemplate" rows="10">[목표]
 내가 만들고 싶은 결과:
 
 [현재 환경]
@@ -493,12 +501,5 @@ OS:
   <footer class="site-footer">
     <a href="#top">맨 위로</a>
   </footer>
-  
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js"></script>
-  <script src="https://unpkg.com/@egjs/flicking/dist/flicking.pkgd.min.js"></script>
-  <script src="script.js"></script>
 </body>
 </html>

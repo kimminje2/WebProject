@@ -1,0 +1,214 @@
+/* 비교기능 : 비교 버튼 스타일 정리함. */
+.ai-compare-toggle {
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: var(--radius-control);
+  color: #fff;
+  background: var(--blue);
+  font-weight: 900;
+}
+
+.ai-compare-box {
+  z-index: 30;
+}
+
+.ai-compare-dialog {
+  max-width: 760px;
+  max-height: 720px;
+  padding: 34px 36px;
+  display: grid;
+  gap: 20px;
+  overflow: auto;
+}
+
+.ai-compare-dialog h2 {
+  margin: 0;
+  font-size: 22px;
+  text-align: center;
+}
+
+.ai-compare-selects {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-compare-selects select {
+  flex: 1;
+}
+
+.ai-compare-selects strong {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.ai-compare-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: #fff;
+}
+
+.ai-compare-label-col {
+  width: 72px;
+}
+
+.ai-compare-tool-col {
+  width: calc((100% - 72px) / 2);
+}
+
+.ai-compare-table th,
+.ai-compare-table td {
+  padding: 9px;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.ai-compare-table th {
+  color: #24406f;
+  background: rgba(237, 245, 255, 0.72);
+}
+
+.ai-compare-table td {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.ai-compare-close {
+  min-height: 46px;
+  border-radius: var(--radius-control);
+  color: #fff;
+  background: #666;
+  font-weight: 900;
+}
+
+.stack-form,
+.record-list,
+.prompt-shelf {
+  display: grid;
+  gap: 10px;
+}
+
+.journal-list-panel {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.journal-filters {
+  grid-template-columns: repeat(auto-fit, minmax(var(--filter-col-min), 1fr));
+}
+
+.record-selects {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.record-ai-row {
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.record-ai-row button {
+  height: 48px;
+  min-height: 48px;
+  min-width: 132px;
+}
+
+.record-list,
+.prompt-shelf {
+  max-height: var(--list-max);
+  overflow-y: auto;
+  padding: 0 4px 0 0;
+}
+
+.record-list {
+  list-style: none;
+  margin: 18px 0 0;
+}
+
+.record-list .record-item,
+.prompt-item {
+  padding: 12px;
+}
+
+.record-list .record-item.active,
+.prompt-item.active {
+  border-color: var(--blue);
+  background: #edf5ff;
+}
+
+.record-card-top strong,
+.prompt-item strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.record-date {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.record-detail {
+  display: none;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.record-list .record-item.expanded .record-detail {
+  display: block;
+}
+
+.prompt-workspace {
+  grid-template-columns: repeat(auto-fit, minmax(var(--prompt-col-min), 1fr));
+  gap: var(--tab-gap);
+}
+
+.prompt-library {
+  padding-right: 18px;
+}
+
+.prompt-editor {
+  align-self: start;
+}
+
+.prompt-item {
+  min-height: 52px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.library-actions {
+  align-items: center;
+}
+
+.icon-button,
+.delete-prompt {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-control);
+  font-weight: 800;
+}
+
+.icon-button {
+  color: #fff;
+  background: var(--blue);
+  font-size: 18px;
+}
+
+.delete-prompt {
+  color: #6f7887;
+  background: #edf0f4;
+  font-size: 14px;
+}

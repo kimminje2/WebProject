@@ -1,0 +1,311 @@
+@media (max-width: 768px) {
+  .site-header,
+  .nav-bar,
+  .hero-page,
+  .app-shell,
+  .tab-page,
+  .career-section,
+  .community-section,
+  .shortcut-section,
+  .toolbox-layout,
+  .toolbox-main {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  @supports not (overflow: clip) {
+    .site-header,
+    .nav-bar,
+    .hero-page,
+    .app-shell,
+    .tab-page,
+    .career-section,
+    .community-section,
+    .shortcut-section,
+    .toolbox-layout,
+    .toolbox-main {
+      overflow-x: hidden;
+    }
+  }
+
+  .site-header:has(.hero-page.active) {
+    min-height: auto;
+  }
+
+  .nav-bar {
+    min-height: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    gap: 12px;
+    padding-block: 14px 0;
+  }
+
+  .nav-primary,
+  .nav-actions {
+    height: auto;
+    min-height: 40px;
+  }
+
+  .nav-primary {
+    display: contents;
+  }
+
+  .nav-actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .brand {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .top-tabs {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    margin-right: 0;
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 18px;
+    padding: 0 max(var(--page-pad), 22px);
+    border-top: 1px solid rgba(36, 94, 168, 0.16);
+    border-bottom: 1px solid rgba(36, 94, 168, 0.16);
+    background: rgba(255, 255, 255, 0.18);
+  }
+
+  .tab-button {
+    flex: 0 1 auto;
+    min-height: 46px;
+    padding: 0;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .auth-bar {
+    justify-content: flex-end;
+  }
+
+  .auth-bar button {
+    min-height: 38px;
+    padding: 0 14px;
+    white-space: nowrap;
+  }
+
+  .site-footer {
+    flex-direction: column;
+  }
+
+  .hero {
+    padding-block: 36px 56px;
+  }
+
+  .ai-input-box {
+    min-height: 60px;
+  }
+
+  .ai-input-box input {
+    padding-left: 12px;
+    font-size: 14px;
+  }
+
+  .ai-input-box button {
+    flex-basis: 72px;
+    width: 72px;
+    padding-inline: 12px;
+  }
+
+  .filter-details {
+    width: 100%;
+  }
+
+  .inline-filter-panel {
+    width: 100%;
+  }
+
+  .toolbox-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .toolbox-stage-nav {
+    grid-template-columns: minmax(0, 1fr);
+    border-bottom: 0;
+  }
+
+  .toolbox-stage-nav strong {
+    grid-column: 1 / -1;
+    align-self: center;
+    text-align: center;
+  }
+
+  .toolbox-stage-nav button {
+    min-height: auto;
+    padding: 8px 0;
+    font-size: 14px;
+    white-space: nowrap;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .toolbox-step-list.open {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 0 0 6px;
+  }
+
+  .toolbox-step-list .step-button {
+    text-align: center;
+  }
+
+  .toolbox-stage-nav .stage-toggle,
+  .toolbox-filter-toggle {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .toolbox-stage-nav .stage-toggle::after,
+  .toolbox-filter-toggle::after {
+    margin-left: 8px;
+  }
+
+
+  .career-grid.flicking-viewport {
+    display: block;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 0 16px;
+    scrollbar-color: var(--scroll-thumb) transparent;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .career-grid.flicking-viewport .flicking-camera {
+    display: flex;
+    width: max-content;
+    gap: 14px;
+    transform: none !important;
+  }
+
+  .career-grid.flicking-viewport .career-card {
+    flex: 0 0 82vw;
+    width: 82vw;
+    max-width: 340px;
+    margin-right: 0;
+  }
+
+  .community-grid {
+    max-width: 100%;
+    min-width: 0;
+    grid-auto-flow: column;
+    grid-auto-columns: 240px;
+    grid-template-columns: none;
+    overflow-x: auto;
+    padding: 2px 4px 12px 0;
+    scroll-snap-type: x mandatory;
+  }
+
+  .community-card {
+    scroll-snap-align: start;
+  }
+
+
+  .career-grid.flicking-viewport::-webkit-scrollbar,
+  .community-grid::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .career-grid.flicking-viewport::-webkit-scrollbar-track,
+  .community-grid::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .career-grid.flicking-viewport::-webkit-scrollbar-thumb,
+  .community-grid::-webkit-scrollbar-thumb {
+    min-width: 48px;
+    min-height: 8px;
+    border-radius: 999px;
+    background: var(--scroll-thumb);
+  }
+
+
+  .toolbox-stage-list,
+  .toolbox-stage {
+    min-height: auto;
+    max-height: none;
+  }
+
+
+  .toolbox-all-grid.flicking-viewport,
+.toolbox-grid.flicking-viewport {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .toolbox-all-grid.flicking-viewport .flicking-camera,
+  .toolbox-grid.flicking-viewport .flicking-camera {
+    align-items: stretch;
+  }
+
+  .toolbox-page {
+    width: 100%;
+    min-width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(6, minmax(104px, auto));
+    gap: 10px;
+  }
+
+  .toolbox-all-grid.flicking-viewport .toolbox-card,
+.toolbox-grid.flicking-viewport .toolbox-card {
+    min-height: 104px;
+  }
+
+  .toolbox-columns,
+  .toolbox-all-columns,
+  .prompt-workspace,
+  .helper-grid,
+  .record-selects,
+  .two-inputs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ai-compare-selects {
+    flex-direction: column;
+  }
+
+  .ai-compare-selects strong {
+    text-align: center;
+  }
+
+  .shortcut-table td:first-child {
+    width: auto;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .top-tabs {
+    padding-inline: 24px;
+  }
+}
