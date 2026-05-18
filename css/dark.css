@@ -1,0 +1,168 @@
+body.dark-mode .theme-toggle {
+  background: transparent;
+}
+
+body.dark-mode .theme-track {
+  background: var(--chip);
+}
+
+body.dark-mode .tab-button {
+  color: var(--muted);
+  background: transparent;
+}
+
+body.dark-mode .top-tabs {
+  background: transparent;
+}
+
+body.dark-mode .tab-button.active {
+  color: var(--ink);
+}
+
+body.dark-mode .tab-button.active::after {
+  background: var(--blue);
+}
+
+body.dark-mode .brand-mark,
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea,
+body.dark-mode .select2-container--default .select2-selection--single,
+body.dark-mode .select2-dropdown,
+body.dark-mode .ai-compare-table {
+  color: var(--ink);
+  background: var(--white);
+}
+
+body.dark-mode .select2-container--default .select2-results__option--highlighted[aria-selected],
+body.dark-mode .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+  color: #101722;
+  background: var(--blue);
+}
+
+body.dark-mode .toolbox-group,
+body.dark-mode .helper-card,
+body.dark-mode .career-card,
+body.dark-mode .community-card {
+  background: var(--soft-panel);
+}
+
+body.dark-mode .hero-search,
+body.dark-mode .setup-section.panel,
+body.dark-mode .language-section.panel,
+body.dark-mode .journal-workspace.panel {
+  background: var(--panel);
+}
+
+body.dark-mode .ai-input-box {
+  background: #303744;
+}
+
+body.dark-mode .ai-input-box input {
+  color: var(--ink);
+  background: #202630;
+}
+
+body.dark-mode .ai-input-box input::placeholder {
+  color: #a8b0bd;
+}
+
+body.dark-mode .os-option,
+body.dark-mode .filter-toggle {
+  color: var(--ink);
+  border-color: var(--line);
+  background: var(--chip);
+}
+
+body.dark-mode .os-option.active {
+  color: #101722;
+  border-color: var(--blue);
+  background: var(--blue);
+}
+
+body.dark-mode .filter-group label {
+  color: var(--muted);
+}
+
+body.dark-mode .filter-group label:has(input:checked) {
+  color: var(--ink);
+}
+
+body.dark-mode .setup-item,
+body.dark-mode .language-item {
+  color: var(--ink);
+  background: var(--soft-panel);
+}
+
+body.dark-mode .toolbox-card p {
+  color: var(--ink);
+  background: rgba(42, 47, 58, 0.98);
+}
+
+body.dark-mode .record-meta span,
+body.dark-mode .badge {
+  color: var(--ink);
+  background: var(--chip);
+}
+
+body.dark-mode .badge.paid {
+  color: #15171b;
+  background: var(--gold);
+}
+
+body.dark-mode .toolbox-empty {
+  color: var(--muted);
+  background: var(--chip);
+}
+
+body.dark-mode .record-list .record-item.active,
+body.dark-mode .prompt-item.active,
+body.dark-mode .shortcut-table th {
+  background: var(--chip);
+}
+
+body.dark-mode .delete-prompt {
+  color: var(--muted);
+  background: var(--chip);
+}
+
+body.dark-mode .community-card span,
+body.dark-mode .shortcut-table td:first-child {
+  color: var(--subtle-text);
+}
+
+.career-grid {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 4px 2px 16px;
+}
+
+.career-card {
+  flex: 0 0 340px;
+  max-width: 100%;
+  min-height: 230px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: #f9fbfe;
+}
+
+.career-card h3 {
+  margin: 14px 0 10px;
+  font-size: 18px;
+}
+
+.career-card ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.site-footer {
+  width: 100%;
+  max-width: var(--layout-max);
+  margin: 28px auto;
+  padding-inline: var(--page-pad);
+  justify-content: flex-end;
+  color: var(--muted);
+}

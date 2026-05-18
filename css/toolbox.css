@@ -1,0 +1,442 @@
+.panel {
+  padding: 22px;
+}
+
+.panel-title {
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.panel-title span,
+.toolbox-stage-nav strong,
+.toolbox-stage-head span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.toolbox-layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  gap: var(--tab-gap);
+  align-items: start;
+}
+
+.toolbox-sidebar {
+  display: grid;
+  gap: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.toolbox-filter-panel {
+  min-width: 0;
+  margin-top: 10px;
+  padding: 10px 2px 2px;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.toolbox-filter-toggle {
+  width: 100%;
+  min-height: auto;
+  padding: 8px 0;
+  border-radius: 0;
+  color: var(--muted);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-weight: 900;
+  text-align: left;
+}
+
+.toolbox-filter-toggle::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.toolbox-filter-toggle:hover,
+.toolbox-filter-toggle[aria-expanded="true"] {
+  color: var(--blue);
+  background: transparent;
+}
+
+.toolbox-filter-body {
+  display: grid;
+  gap: 14px;
+  padding-top: 4px;
+}
+
+.toolbox-filter-body[hidden] {
+  display: none;
+}
+
+.toolbox-main {
+  position: relative;
+}
+
+.toolbox-main,
+.toolbox-stage-list {
+  min-width: 0;
+  display: grid;
+  gap: var(--tab-gap);
+}
+
+.toolbox-stage-nav {
+  padding: 4px 2px 12px;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  background: transparent;
+}
+
+.toolbox-stage-nav button {
+  min-height: auto;
+  padding: 8px 0;
+  border-radius: 0;
+  color: var(--muted);
+  background: transparent;
+  font-weight: 900;
+  text-align: left;
+}
+
+.toolbox-stage-nav button:hover {
+  color: var(--blue);
+  background: transparent;
+}
+
+.toolbox-stage-nav button.active {
+  color: var(--blue);
+  background: transparent;
+}
+
+.toolbox-stage-nav .stage-toggle {
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.toolbox-stage-nav .stage-toggle::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.toolbox-step-list {
+  display: none;
+  gap: 4px;
+  padding: 0 0 2px 12px;
+}
+
+.toolbox-step-list.open {
+  display: grid;
+}
+
+.toolbox-step-list .step-button {
+  padding: 6px 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.toolbox-step-list .step-button.active {
+  color: var(--blue);
+}
+
+.toolbox-stage-nav hr {
+  width: 100%;
+  height: 1px;
+  margin: 6px 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--line);
+}
+
+.toolbox-stage-list,
+.toolbox-stage {
+  min-height: auto;
+}
+
+.toolbox-stage {
+  padding: 22px;
+  display: grid;
+  gap: 12px;
+  overflow: visible;
+  background: var(--panel);
+}
+
+.toolbox-stage-head {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.toolbox-stage-head,
+.record-card-top {
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.toolbox-stage-head h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.toolbox-stage-head span {
+  max-width: 360px;
+  line-height: 1.6;
+  text-align: right;
+}
+
+.toolbox-columns {
+  display: grid;
+  gap: 12px;
+  min-height: 0;
+}
+
+.toolbox-all-columns {
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.toolbox-all-grid,
+.toolbox-grid,
+.journal-filters,
+.helper-grid,
+.tool-category-grid,
+.language-grid,
+.prompt-workspace {
+  display: grid;
+  gap: 10px;
+}
+
+.toolbox-all-grid,
+.toolbox-grid {
+  grid-template-columns: repeat(auto-fit, minmax(var(--tool-card-min), 1fr));
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.toolbox-all-grid {
+  gap: 14px;
+}
+
+.toolbox-group {
+  min-width: 0;
+  min-height: 0;
+  padding: 12px;
+  display: grid;
+  border-radius: var(--radius-card);
+  background: #f9fbfe;
+  overflow: hidden;
+}
+
+.toolbox-group h4,
+.toolbox-all-section h4 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.toolbox-all-section + .toolbox-all-section {
+  margin-top: 28px;
+}
+
+.toolbox-empty {
+  min-height: 112px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-card);
+  color: #465367;
+  background: #eef5fc;
+  font-weight: 800;
+  text-align: center;
+}
+
+.toolbox-card {
+  position: relative;
+  min-height: 112px;
+  padding: 10px;
+  display: grid;
+  align-content: center;
+  overflow: hidden;
+}
+
+.toolbox-card-top {
+  gap: 10px;
+}
+
+.toolbox-card-top img {
+  width: 28px;
+  height: 28px;
+  padding: 5px;
+}
+
+.toolbox-card strong,
+.record-list strong,
+.prompt-item strong {
+  display: block;
+  line-height: 1.35;
+}
+
+.toolbox-card strong {
+  font-size: 14px;
+}
+
+.toolbox-card span {
+  display: inline-flex;
+  margin-top: 4px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.toolbox-card p {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 14px;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  background: rgba(249, 251, 254, 0.98);
+  font-size: 13px;
+  line-height: 1.6;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease;
+}
+
+.toolbox-card:hover p,
+.toolbox-card:focus-within p {
+  opacity: 1;
+}
+
+
+/* 플러그인 : 카드 슬라이드 영역 정리함. */
+.flicking-viewport {
+  width: 100%;
+  overflow: hidden;
+}
+
+.flicking-camera {
+  display: flex;
+  align-items: stretch;
+}
+
+.career-grid.flicking-viewport {
+  display: block;
+  overflow: hidden;
+  padding: 2px 0 10px;
+}
+
+.career-grid.flicking-viewport .career-card {
+  width: min(320px, 78vw);
+  margin-right: 14px;
+  flex: none;
+}
+
+.toolbox-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.toolbox-group-head h4 {
+  margin: 0;
+}
+
+.flicking-dots {
+  min-height: 34px;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.flicking-dot-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.flicking-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #c5d2e5;
+  cursor: pointer;
+}
+
+.flicking-dot.active {
+  width: 18px;
+  border-radius: 999px;
+  background: var(--blue);
+}
+
+.flicking-nav-button {
+  min-width: 48px;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: var(--radius-control);
+  color: var(--blue);
+  background: #edf5ff;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.flicking-nav-button:disabled {
+  color: #91a0b6;
+  background: #eef2f7;
+  cursor: default;
+}
+
+.toolbox-all-grid.flicking-viewport,
+.toolbox-grid.flicking-viewport {
+  display: block;
+  overflow: hidden;
+  padding-right: 0;
+  touch-action: pan-y pinch-zoom;
+}
+
+.toolbox-page {
+  width: 100%;
+  min-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(112px, auto));
+  gap: 14px;
+  flex: none;
+}
+
+.toolbox-all-grid.flicking-viewport .toolbox-card,
+.toolbox-grid.flicking-viewport .toolbox-card {
+  min-width: 0;
+  width: 100%;
+}
+
+
+.record-item {
+  cursor: pointer;
+}
