@@ -59,6 +59,13 @@ body.dark-mode {
   box-sizing: border-box;
 }
 
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 /* 기본 화면 : 전체 글꼴, 글자색, 배경색 */
 body {
   margin: 0;
@@ -185,7 +192,7 @@ textarea {
 }
 
 .toolbox-card,
-.record-list li,
+.record-list .record-item,
 .prompt-item,
 .tool-category,
 .language-item {
@@ -234,7 +241,8 @@ textarea {
 .record-list::-webkit-scrollbar,
 .prompt-shelf::-webkit-scrollbar,
 .tool-category-grid::-webkit-scrollbar,
-.career-grid::-webkit-scrollbar {
+.career-grid::-webkit-scrollbar,
+.community-grid::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
@@ -243,7 +251,8 @@ textarea {
 .record-list::-webkit-scrollbar-thumb,
 .prompt-shelf::-webkit-scrollbar-thumb,
 .tool-category-grid::-webkit-scrollbar-thumb,
-.career-grid::-webkit-scrollbar-thumb {
+.career-grid::-webkit-scrollbar-thumb,
+.community-grid::-webkit-scrollbar-thumb {
   border-radius: 999px;
   background: var(--scroll-thumb);
 }
@@ -1115,7 +1124,137 @@ textarea {
   opacity: 1;
 }
 
-/* AI 鍮꾧탳 踰꾪듉*/
+
+/* 플러그인 : 카드 슬라이드 영역 정리함. */
+.flicking-viewport {
+  width: 100%;
+  overflow: hidden;
+}
+
+.flicking-camera {
+  display: flex;
+  align-items: stretch;
+}
+
+.career-grid.flicking-viewport {
+  display: block;
+  overflow: hidden;
+  padding: 2px 0 10px;
+}
+
+.career-grid.flicking-viewport .career-card {
+  width: min(320px, 78vw);
+  margin-right: 14px;
+  flex: none;
+}
+
+.toolbox-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.toolbox-group-head h4 {
+  margin: 0;
+}
+
+.flicking-dots {
+  min-height: 34px;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.flicking-dot-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.flicking-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #c5d2e5;
+  cursor: pointer;
+}
+
+.flicking-dot.active {
+  width: 18px;
+  border-radius: 999px;
+  background: var(--blue);
+}
+
+.flicking-nav-button {
+  min-width: 48px;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: var(--radius-control);
+  color: var(--blue);
+  background: #edf5ff;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.flicking-nav-button:disabled {
+  color: #91a0b6;
+  background: #eef2f7;
+  cursor: default;
+}
+
+.toolbox-all-grid.flicking-viewport,
+.toolbox-grid.flicking-viewport {
+  display: block;
+  overflow: hidden;
+  padding-right: 0;
+  touch-action: pan-y pinch-zoom;
+}
+
+.toolbox-page {
+  width: 100%;
+  min-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(112px, auto));
+  gap: 14px;
+  flex: none;
+}
+
+.toolbox-all-grid.flicking-viewport .toolbox-card,
+.toolbox-grid.flicking-viewport .toolbox-card {
+  min-width: 0;
+  width: 100%;
+}
+
+.prompt-shelf.flicking-viewport,
+.record-list.flicking-viewport {
+  display: block;
+  overflow: hidden;
+  padding-right: 0;
+}
+
+.prompt-shelf.flicking-viewport .flicking-camera,
+.record-list.flicking-viewport .flicking-camera {
+  display: block;
+}
+
+.prompt-shelf.flicking-viewport .prompt-item,
+.record-list.flicking-viewport .record-item {
+  margin-bottom: 10px;
+}
+
+.record-item {
+  cursor: pointer;
+}
+
+/* 비교기능 : 비교 버튼 스타일 정리함. */
 .ai-compare-toggle {
   min-height: 42px;
   padding: 0 18px;
@@ -1247,12 +1386,12 @@ textarea {
   margin: 18px 0 0;
 }
 
-.record-list li,
+.record-list .record-item,
 .prompt-item {
   padding: 12px;
 }
 
-.record-list li.active,
+.record-list .record-item.active,
 .prompt-item.active {
   border-color: var(--blue);
   background: #edf5ff;
@@ -1279,7 +1418,7 @@ textarea {
   border-top: 1px solid var(--line);
 }
 
-.record-list li.expanded .record-detail {
+.record-list .record-item.expanded .record-detail {
   display: block;
 }
 
@@ -1624,7 +1763,7 @@ body.dark-mode .toolbox-empty {
   background: var(--chip);
 }
 
-body.dark-mode .record-list li.active,
+body.dark-mode .record-list .record-item.active,
 body.dark-mode .prompt-item.active,
 body.dark-mode .shortcut-table th {
   background: var(--chip);
@@ -1677,6 +1816,36 @@ body.dark-mode .shortcut-table td:first-child {
 }
 
 @media (max-width: 768px) {
+  .site-header,
+  .nav-bar,
+  .hero-page,
+  .app-shell,
+  .tab-page,
+  .career-section,
+  .community-section,
+  .shortcut-section,
+  .toolbox-layout,
+  .toolbox-main {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  @supports not (overflow: clip) {
+    .site-header,
+    .nav-bar,
+    .hero-page,
+    .app-shell,
+    .tab-page,
+    .career-section,
+    .community-section,
+    .shortcut-section,
+    .toolbox-layout,
+    .toolbox-main {
+      overflow-x: hidden;
+    }
+  }
+
   .site-header:has(.hero-page.active) {
     min-height: auto;
   }
@@ -1698,11 +1867,7 @@ body.dark-mode .shortcut-table td:first-child {
   }
 
   .nav-primary {
-    grid-column: 1;
-    grid-row: 1 / span 2;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
+    display: contents;
   }
 
   .nav-actions {
@@ -1711,6 +1876,8 @@ body.dark-mode .shortcut-table td:first-child {
   }
 
   .brand {
+    grid-column: 1;
+    grid-row: 1;
     min-width: 0;
     gap: 10px;
   }
@@ -1729,14 +1896,15 @@ body.dark-mode .shortcut-table td:first-child {
   .top-tabs {
     grid-column: 1 / -1;
     grid-row: 2;
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    margin-right: 0;
     justify-content: center;
     flex-wrap: wrap;
     overflow-x: visible;
     gap: 18px;
-    padding: 0 var(--page-pad);
+    padding: 0 max(var(--page-pad), 22px);
     border-top: 1px solid rgba(36, 94, 168, 0.16);
     border-bottom: 1px solid rgba(36, 94, 168, 0.16);
     background: rgba(255, 255, 255, 0.18);
@@ -1837,7 +2005,36 @@ body.dark-mode .shortcut-table td:first-child {
     margin-left: 8px;
   }
 
+
+  .career-grid.flicking-viewport {
+    display: block;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 0 16px;
+    scrollbar-color: var(--scroll-thumb) transparent;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .career-grid.flicking-viewport .flicking-camera {
+    display: flex;
+    width: max-content;
+    gap: 14px;
+    transform: none !important;
+  }
+
+  .career-grid.flicking-viewport .career-card {
+    flex: 0 0 82vw;
+    width: 82vw;
+    max-width: 340px;
+    margin-right: 0;
+  }
+
   .community-grid {
+    max-width: 100%;
+    min-width: 0;
     grid-auto-flow: column;
     grid-auto-columns: 240px;
     grid-template-columns: none;
@@ -1850,10 +2047,55 @@ body.dark-mode .shortcut-table td:first-child {
     scroll-snap-align: start;
   }
 
+
+  .career-grid.flicking-viewport::-webkit-scrollbar,
+  .community-grid::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .career-grid.flicking-viewport::-webkit-scrollbar-track,
+  .community-grid::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .career-grid.flicking-viewport::-webkit-scrollbar-thumb,
+  .community-grid::-webkit-scrollbar-thumb {
+    min-width: 48px;
+    min-height: 8px;
+    border-radius: 999px;
+    background: var(--scroll-thumb);
+  }
+
+
   .toolbox-stage-list,
   .toolbox-stage {
     min-height: auto;
     max-height: none;
+  }
+
+
+  .toolbox-all-grid.flicking-viewport,
+.toolbox-grid.flicking-viewport {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .toolbox-all-grid.flicking-viewport .flicking-camera,
+  .toolbox-grid.flicking-viewport .flicking-camera {
+    align-items: stretch;
+  }
+
+  .toolbox-page {
+    width: 100%;
+    min-width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(6, minmax(104px, auto));
+    gap: 10px;
+  }
+
+  .toolbox-all-grid.flicking-viewport .toolbox-card,
+.toolbox-grid.flicking-viewport .toolbox-card {
+    min-height: 104px;
   }
 
   .toolbox-columns,
@@ -1878,3 +2120,9 @@ body.dark-mode .shortcut-table td:first-child {
   }
 }
 
+
+@media (max-width: 480px) {
+  .top-tabs {
+    padding-inline: 24px;
+  }
+}
