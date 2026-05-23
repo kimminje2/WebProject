@@ -17,6 +17,7 @@
   <script defer src="https://unpkg.com/@egjs/flicking/dist/flicking.pkgd.min.js"></script>
   <script defer src="js/script.js"></script>
   <script defer src="js/app-data.js"></script>
+  <script defer src="js/ai-chat.js"></script>
   <script defer src="js/app-init.js"></script>
 </head>
 <body>
@@ -55,6 +56,14 @@
     <section class="tab-page hero-page active" id="home" data-page="home">
       <section class="hero">
         <form class="hero-search" id="goalForm">
+          <fieldset class="search-mode-switch" id="searchModeSwitch">
+            <legend class="sr-only">추천 방식 선택</legend>
+            <div class="mode-track" data-active="keyword">
+              <span class="mode-thumb" aria-hidden="true"></span>
+              <button class="search-mode-option active" type="button" data-search-mode="keyword" aria-pressed="true">키워드 검색</button>
+              <button class="search-mode-option" type="button" data-search-mode="ollama" aria-pressed="false">AI 채팅</button>
+            </div>
+          </fieldset>
           <label class="sr-only" for="goalInput">AI에게 개발 목표 입력</label>
           <div class="ai-input-box" aria-label="개발 목표 입력">
             <input id="goalInput" type="text" placeholder="무엇을 만들고 싶나요? 예: 파이썬 챗봇, 웹 포트폴리오, 게임" autocomplete="off">
@@ -107,6 +116,12 @@
             </details>
           </div>
         </form>
+        <section class="local-ai-chat" id="localAiChat" aria-label="AI 채팅 추천 대화" hidden>
+          <div class="local-ai-head">
+            <strong>AI 채팅 추천</strong>
+          </div>
+          <div class="local-ai-messages" id="localAiMessages" aria-live="polite"></div>
+        </section>
         <div class="recommend-list" id="recommendList" aria-live="polite" hidden></div>
       </section>
 

@@ -182,10 +182,6 @@
   background: rgba(0, 0, 0, 0.58);
 }
 
-.auth-modal[hidden],
-.ai-compare-box[hidden] {
-  display: none;
-}
 
 .auth-modal {
   z-index: 40;

@@ -1,4 +1,4 @@
-﻿/* 저장소 : 개인 저장소 키 */
+/* 저장소 : 개인 저장소 키 */
 const personalStorageKeys = ["llmRecords", "llmPrompts", "installedTools", "languageSettings"];
 
 /* 플러그인 : Flicking 인스턴스 보관함 */
@@ -70,8 +70,7 @@ function loadAccounts() {
 
 /* 계정 : 계정 목록 저장 */
 function saveAccounts(accounts) {
-  localStorage.setItem("aiGuideAccounts", JSON.stringify(accounts));
-
+  saveJson("aiGuideAccounts", accounts);
 }
 
 /* 계정 : 로그인 갱신 */
@@ -705,16 +704,16 @@ function matchesGoal(tool, goal) {
   return tool.fields.some((field) => inferred.fields.includes(field)) || tool.languages.some((language) => inferred.languages.includes(language)) || inferred.categories.includes(getToolCategory(tool)) || tool.name.toLowerCase().includes(goal);
 }
 
-/* 홈추천 : 점수순 정렬 */
-function getRecommendedTools() {
-
-  const filters = getSearchFilters();
-
-  return appData.tools.filter((tool) => (filters.cost === "all" || tool.cost === filters.cost) && hasField(tool,
- filters.field) && (filters.language === "all" || tool.languages.includes(filters.language)) && supportsOs(tool) && matchesGoal(tool,
- filters.goal)).sort((a, b) => getToolScore(b, filters.goal) - getToolScore(a, filters.goal));
+/* 홈추천 : 공통 필터 조건 확인 */
+function matchesSearchFilters(tool, filters) {
+  return (filters.cost === "all" || tool.cost === filters.cost) && hasField(tool, filters.field) && (filters.language === "all" || tool.languages.includes(filters.language)) && supportsOs(tool);
 }
 
+/* 홈추천 : 점수순 정렬 */
+function getRecommendedTools() {
+  const filters = getSearchFilters();
+  return appData.tools.filter((tool) => matchesSearchFilters(tool, filters) && matchesGoal(tool, filters.goal)).sort((a, b) => getToolScore(b, filters.goal) - getToolScore(a, filters.goal));
+}
 /* 홈추천 : OS 지원 확인 */
 function supportsOs(tool) {
   return (osCompatibility[tool.name] || allOs).includes(appData.selectedOs);
@@ -765,7 +764,7 @@ function parseGoal(goal) {
 
   goalKeywordRules.forEach((rule) => {
 
-    if (!hasAny(goal, rule.words)) return;
+    if (!hasAny(goal, rule.words) || hasAny(goal, rule.exclude || [])) return;
 
     signals.fields.push(...(rule.fields || []));
 
@@ -787,6 +786,10 @@ function parseGoal(goal) {
 /* 홈추천 : 추천 결과 출력 */
 function renderSearchResults() {
 
+  if (appData.searchMode === "ollama") {
+    $("#recommendList").prop("hidden", true);
+    return;
+  }
   if (!appData.hasSearched) {
     $("#recommendList").prop("hidden", true).empty();
     return;
@@ -831,6 +834,3 @@ function renderRecommendationGroup($target, title, tools) {
 
   $target.append($group);
 }
-
-
-

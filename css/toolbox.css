@@ -8,9 +8,7 @@
   margin-bottom: 16px;
 }
 
-.panel-title span,
-.toolbox-stage-nav strong,
-.toolbox-stage-head span {
+.panel-title span {
   color: var(--muted);
   font-weight: 800;
 }
@@ -78,9 +76,6 @@
   padding-top: 4px;
 }
 
-.toolbox-filter-body[hidden] {
-  display: none;
-}
 
 .toolbox-main {
   position: relative;
@@ -197,11 +192,6 @@
   font-size: 20px;
 }
 
-.toolbox-stage-head span {
-  max-width: 360px;
-  line-height: 1.6;
-  text-align: right;
-}
 
 .toolbox-columns {
   display: grid;

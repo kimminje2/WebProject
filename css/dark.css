@@ -166,3 +166,35 @@ body.dark-mode .shortcut-table td:first-child {
   justify-content: flex-end;
   color: var(--muted);
 }
+body.dark-mode .mode-track {
+  border-color: var(--line);
+  background: var(--chip);
+}
+
+body.dark-mode .search-mode-option {
+  color: var(--muted);
+}
+
+body.dark-mode .search-mode-option.active {
+  color: #101722;
+}
+
+body.dark-mode .local-ai-chat {
+  border-color: var(--line);
+  background: var(--panel);
+}
+
+body.dark-mode .local-ai-message {
+  color: var(--ink);
+  background: var(--chip);
+}
+
+body.dark-mode .local-ai-message.user {
+  color: #101722;
+  background: var(--blue);
+}
+
+body.dark-mode .local-ai-message.error {
+  color: #f4c6c2;
+  background: #432c30;
+}

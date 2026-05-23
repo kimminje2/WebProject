@@ -119,6 +119,22 @@
     padding-block: 36px 56px;
   }
 
+  .search-mode-switch {
+    margin-bottom: 14px;
+  }
+
+  .search-mode-option {
+    min-height: 38px;
+    font-size: 13px;
+  }
+
+  .local-ai-chat {
+    padding: 14px;
+  }
+
+  .local-ai-message {
+    max-width: 92%;
+  }
   .ai-input-box {
     min-height: 60px;
   }
@@ -151,11 +167,6 @@
     border-bottom: 0;
   }
 
-  .toolbox-stage-nav strong {
-    grid-column: 1 / -1;
-    align-self: center;
-    text-align: center;
-  }
 
   .toolbox-stage-nav button {
     min-height: auto;

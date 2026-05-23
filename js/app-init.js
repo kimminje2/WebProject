@@ -1,7 +1,6 @@
 $(function () {
   applyTheme(localStorage.getItem("aiGuideTheme") || "light");
 
-  renderSearchResults();
   renderToolboxFilters();
   renderAiCompareOptions();
   renderToolbox();
@@ -112,8 +111,16 @@ $(function () {
   }
   );
 
+  $("#searchModeSwitch").on("click", ".search-mode-option", function () {
+    setSearchMode($(this).data("search-mode"));
+  });
+
   $("#goalForm").on("submit", function (event) {
     event.preventDefault();
+    if (appData.searchMode === "ollama") {
+      requestOllamaReply();
+      return;
+    }
     appData.hasSearched = true;
     renderSearchResults();
 
@@ -368,7 +375,3 @@ $(function () {
   );
 }
 );
-
-
-
-

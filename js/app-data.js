@@ -1368,7 +1368,10 @@ const appData = {
   selectedOs: "windows",
   expandedRecordIndex: null,
   activeToolboxStage: 0,
-  toolboxView: "stage"
+  toolboxView: "stage",
+  searchMode: "keyword",
+  ollamaMessages: [],
+  ollamaPending: false
 
 }
 ;
@@ -1505,11 +1508,19 @@ const languagePriorityRules = [
   }
   ,
   {
-    words: ["sql", "쿼리", "데이터베이스", "db"], order: ["MySQL", "PostgreSQL", "DataGrip", "TablePlus"]
+    words: ["nosql", "no sql", "몽고", "몽고db", "몽고디비", "mongodb", "문서형 db", "문서형 데이터베이스"], order: ["MongoDB", "TablePlus", "Docker"]
   }
   ,
   {
-    words: ["redis", "캐시", "세션"], order: ["Redis", "PostgreSQL", "Docker"]
+    words: ["vector db", "벡터 db", "chroma", "pinecone"], order: ["Vector DB (Chroma/Pinecone)", "LangChain", "MongoDB"]
+  }
+  ,
+  {
+    words: ["sql", "쿼리", "데이터베이스", "데이터 베이스", "db", "디비", "rdb", "rdbms", "관계형"], order: ["MySQL", "PostgreSQL", "DataGrip", "TablePlus"]
+  }
+  ,
+  {
+    words: ["redis", "레디스", "캐시", "세션"], order: ["Redis", "PostgreSQL", "Docker"]
   }
   ,
   {
@@ -1580,8 +1591,20 @@ const goalKeywordRules = [
   }
   ,
   {
-    words: ["데이터베이스", "sql", "db", "쿼리", "mysql", "postgresql", "mongodb", "redis", "vector db", "chroma", "pinecone"], fields: ["database", "data"], languages: ["sql"],
+    words: ["데이터베이스", "데이터 베이스", "db", "디비", "sql", "쿼리", "rdb", "rdbms", "관계형", "mysql", "postgresql"], exclude: ["nosql", "no sql", "mongodb", "몽고db", "몽고디비", "redis", "레디스", "vector db", "벡터 db", "chroma", "pinecone"], fields: ["database", "data"], languages: ["sql"],
  categories: ["data"]
+  }
+  ,
+  {
+    words: ["nosql", "no sql", "mongodb", "몽고db", "몽고디비", "문서형 db", "문서형 데이터베이스"], fields: ["database", "data"], categories: ["data"]
+  }
+  ,
+  {
+    words: ["redis", "레디스", "캐시", "세션"], fields: ["data", "system"], categories: ["data", "system"]
+  }
+  ,
+  {
+    words: ["vector db", "벡터 db", "chroma", "pinecone"], fields: ["database", "data", "ai"], categories: ["data", "ai"]
   }
   ,
   {
