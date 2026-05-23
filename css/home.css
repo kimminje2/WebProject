@@ -18,6 +18,112 @@
   padding: 24px;
   border-radius: 18px;
 }
+.search-mode-switch {
+  width: min(100%, 294px);
+  margin: 0 auto 18px;
+  padding: 0;
+  border: 0;
+}
+
+.mode-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(36, 94, 168, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.mode-thumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 6px);
+  height: calc(100% - 8px);
+  border-radius: 999px;
+  background: var(--blue);
+  box-shadow: 0 8px 20px rgba(28, 75, 136, 0.12);
+  transition: transform 260ms ease;
+}
+
+.mode-track[data-active="ollama"] .mode-thumb {
+  transform: translateX(calc(100% + 4px));
+}
+
+.search-mode-option {
+  position: relative;
+  z-index: 1;
+  min-height: 40px;
+  border: 0;
+  border-radius: 999px;
+  color: #39516f;
+  background: transparent;
+  font-weight: 900;
+  transition: color 180ms ease;
+}
+
+.search-mode-option.active {
+  color: #fff;
+}
+
+.local-ai-chat {
+  width: 100%;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.local-ai-head {
+  margin-bottom: 14px;
+}
+
+.local-ai-messages {
+  max-height: 420px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.local-ai-message {
+  max-width: min(86%, 680px);
+  padding: 12px 14px;
+  border-radius: 14px;
+  color: var(--ink);
+  background: #edf4fc;
+}
+
+.local-ai-message.user {
+  margin-left: auto;
+  color: #fff;
+  background: var(--blue);
+}
+
+.local-ai-role {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 900;
+  opacity: 0.72;
+}
+
+.local-ai-message p {
+  margin: 0;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.local-ai-message.pending p {
+  color: var(--subtle-text);
+}
+
+.local-ai-message.error {
+  color: #743331;
+  background: #fcebea;
+}
 
 .ai-input-box {
   min-height: 72px;
@@ -178,9 +284,6 @@
   width: 100%;
 }
 
-.recommend-list[hidden] {
-  display: none;
-}
 
 .recommend-group > h3 {
   margin: 0;
