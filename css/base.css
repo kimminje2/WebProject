@@ -10,6 +10,7 @@
   --line: #d7dfeb;
   --chip: #e8f0fb;
   --scroll-thumb: #b9c6dc;
+  --scroll-track: transparent;
   --blue: #245ea8;
   --green: #0f8b6f;
   --coral: #e45b43;
@@ -44,7 +45,8 @@ body.dark-mode {
   --soft-panel: #2a2f3a;
   --line: #3b424f;
   --chip: #303744;
-  --scroll-thumb: #606978;
+  --scroll-thumb: #4d5664;
+  --scroll-track: #1b2028;
   --blue: #8fb7f4;
   --green: #78ccb8;
   --coral: #f08a78;
@@ -237,6 +239,14 @@ textarea {
   flex-wrap: wrap;
 }
 
+.toolbox-grid,
+.record-list,
+.prompt-shelf,
+.tool-category-grid,
+.career-grid,
+.community-grid {
+  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+}
 .toolbox-grid::-webkit-scrollbar,
 .record-list::-webkit-scrollbar,
 .prompt-shelf::-webkit-scrollbar,
@@ -247,6 +257,15 @@ textarea {
   height: 8px;
 }
 
+.toolbox-grid::-webkit-scrollbar-track,
+.record-list::-webkit-scrollbar-track,
+.prompt-shelf::-webkit-scrollbar-track,
+.tool-category-grid::-webkit-scrollbar-track,
+.career-grid::-webkit-scrollbar-track,
+.community-grid::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: var(--scroll-track);
+}
 .toolbox-grid::-webkit-scrollbar-thumb,
 .record-list::-webkit-scrollbar-thumb,
 .prompt-shelf::-webkit-scrollbar-thumb,

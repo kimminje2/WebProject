@@ -7,6 +7,7 @@ $(function () {
   renderUserViews();
   initCareerFlicking();
   initSelect2Controls();
+  initRecordDatePicker();
   initFormValidation();
 
   let toolboxPageSize = getToolboxPageSize();
@@ -252,7 +253,9 @@ $(function () {
     let savedIndex = Number(editingIndex);
     const record = {
       title, content, field: $("#recordField").val() || previousRecord.field || inferred.fields[0] || "", language: $("#recordLanguage").val() || previousRecord.language || inferred.languages[0] || "",
- ai: $("#recordAi").val().trim(), date: previousRecord.date || new Date().toLocaleDateString("ko-KR")
+      ai: $("#recordAi").val().trim(),
+      date: previousRecord.date || new Date().toLocaleDateString("ko-KR"),
+      createdAt: previousRecord.createdAt || getLocalDateKey()
     }
     ;
     if (editingIndex !== "") appData.records[Number(editingIndex)] = record;
@@ -263,12 +266,13 @@ $(function () {
 
     }
     saveJson("llmRecords", appData.records);
+    resetForm("#recordForm", "#editingRecordIndex");
     $("#recordSearchFilter").val("");
-    $("#recordFieldFilter, #recordLanguageFilter").val("all");
-    $("#recordField, #recordLanguage").val("");
-    $("#recordFieldFilter, #recordLanguageFilter, #recordField, #recordLanguage").each(function () {
+    $("#recordFieldFilter, #recordLanguageFilter").val("all").each(function () {
       refreshSelect2($(this));
     });
+    $("#recordDateSort").val("newest");
+    recordDatePicker?.clear(false);
     appData.expandedRecordIndex = savedIndex;
     renderRecords();
 
@@ -318,6 +322,16 @@ $(function () {
 
   $("#recordSearchFilter").on("input", renderRecords);
   $("#recordFieldFilter, #recordLanguageFilter").on("change", renderRecords);
+  $("#recordDateSort").on("change", renderRecords);
+  $("#resetRecordFilters").on("click", function () {
+    $("#recordSearchFilter").val("");
+    $("#recordFieldFilter, #recordLanguageFilter").val("all").each(function () {
+      refreshSelect2($(this));
+    });
+    $("#recordDateSort").val("newest");
+    recordDatePicker?.clear(false);
+    renderRecords();
+  });
 
   $("#promptForm").on("submit", function (event) {
     event.preventDefault();
@@ -338,6 +352,7 @@ $(function () {
 
     }
     saveJson("llmPrompts", appData.prompts);
+    resetForm("#promptForm", "#editingPromptIndex");
     renderPrompts();
 
   }

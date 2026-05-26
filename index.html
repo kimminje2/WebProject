@@ -9,12 +9,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
   <link href="https://unpkg.com/@egjs/flicking/dist/flicking.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <script defer src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+  <script defer src="https://code.jquery.com/jquery-4.0.0.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js"></script>
   <script defer src="https://unpkg.com/@egjs/flicking/dist/flicking.pkgd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/ko.js"></script>
   <script defer src="js/script.js"></script>
   <script defer src="js/app-data.js"></script>
   <script defer src="js/ai-chat.js"></script>
@@ -499,13 +501,19 @@ OS:
         </form>
         <section class="journal-list-panel" aria-label="학습기록 저장 목록">
           <div class="journal-filters" aria-label="학습기록 필터링">
-            <input id="recordSearchFilter" type="search" placeholder="저장된 기록 검색">
-            <select id="recordFieldFilter">
+            <input id="recordSearchFilter" name="recordSearchFilter" type="search" placeholder="저장된 기록 검색">
+            <select id="recordFieldFilter" name="recordFieldFilter">
               <option value="all">전체 분야</option>
             </select>
-            <select id="recordLanguageFilter">
+            <select id="recordLanguageFilter" name="recordLanguageFilter">
               <option value="all">전체 언어</option>
             </select>
+            <input id="recordDateFilter" name="recordDateFilter" class="journal-date-filter" type="text" placeholder="날짜 범위 선택" autocomplete="off">
+            <select id="recordDateSort" name="recordDateSort">
+              <option value="newest">최신순</option>
+              <option value="oldest">오래된순</option>
+            </select>
+            <button class="journal-filter-reset" id="resetRecordFilters" type="button">필터 초기화</button>
           </div>
           <div class="record-list" id="recordList"></div>
         </section>

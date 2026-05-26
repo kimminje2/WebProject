@@ -198,3 +198,73 @@ body.dark-mode .local-ai-message.error {
   color: #f4c6c2;
   background: #432c30;
 }
+
+body.dark-mode .flatpickr-calendar,
+body.dark-mode .flatpickr-months .flatpickr-month,
+body.dark-mode .flatpickr-current-month .flatpickr-monthDropdown-months,
+body.dark-mode .flatpickr-weekdays,
+body.dark-mode span.flatpickr-weekday {
+  color: var(--ink);
+  background: var(--panel);
+}
+
+body.dark-mode .flatpickr-day {
+  color: var(--ink);
+}
+
+body.dark-mode .flatpickr-day.prevMonthDay,
+body.dark-mode .flatpickr-day.nextMonthDay {
+  color: var(--muted);
+}
+
+body.dark-mode .flatpickr-day:hover,
+body.dark-mode .flatpickr-day.inRange {
+  border-color: var(--chip);
+  background: var(--chip);
+}
+
+body.dark-mode .flatpickr-day.selected,
+body.dark-mode .flatpickr-day.startRange,
+body.dark-mode .flatpickr-day.endRange {
+  color: #101722;
+  border-color: var(--blue);
+  background: var(--blue);
+}
+body.dark-mode .journal-filter-reset {
+  color: var(--ink);
+  border-color: var(--line);
+  background: var(--chip);
+}
+
+body.dark-mode .journal-filter-reset:hover {
+  border-color: var(--blue);
+  background: var(--soft-panel);
+}
+/* 다크모드 : 전체 스크롤 영역 색상 통일 */
+body.dark-mode * {
+  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+  scrollbar-width: thin;
+}
+
+body.dark-mode *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body.dark-mode *::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: var(--scroll-track);
+}
+
+body.dark-mode *::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--scroll-thumb);
+}
+
+body.dark-mode *::-webkit-scrollbar-thumb:hover {
+  background: #596474;
+}
+
+body.dark-mode *::-webkit-scrollbar-button {
+  display: none;
+}
