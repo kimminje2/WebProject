@@ -1,3 +1,10 @@
+/* 도구 모음 : 고정 폭이 들어가지 않는 화면에서는 유동 폭으로 전환 */
+@media (max-width: 1152px) {
+  .toolbox-layout {
+    width: 100%;
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  }
+}
 @media (max-width: 768px) {
   .site-header,
   .nav-bar,
@@ -159,6 +166,7 @@
   }
 
   .toolbox-layout {
+    width: 100%;
     grid-template-columns: minmax(0, 1fr);
   }
 

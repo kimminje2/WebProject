@@ -80,32 +80,24 @@ function renderAiRecommendationCards(tools) {
 
 /* 로컬 AI : 답변 표시 형식 정리 */
 function formatAiReply(content) {
-  let listIndex = 0;
   return content
     .replace(/```[\s\S]*?```/g, (block) => block.replace(/```[^\n]*\n?|```/g, ""))
     .replace(/\*\*|__/g, "")
     .replace(/`/g, "")
     .replace(/^\s*#{1,6}\s*/gm, "")
-    .replace(/^\s*[-*+]\s+/gm, () => `${++listIndex}. `)
+    .replace(/^\s*(?:\d+\s*단계\s*[:：][^\n]*|추가\s*팁\s*[:：]?)\s*$/gm, "")
+    .replace(/^\s*(?:[-*+]|\d+[.)])\s*/gm, "")
+    .replace(/\n{2,}/g, "\n")
     .trim();
 }
 
-/* 로컬 AI : 카드와 같은 추천 답변 생성 */
-function buildCardMatchedAnswer(tools) {
-  if (!tools.length) return "현재 조건에서 추천할 수 있는 보유 도구가 없습니다. 필터나 질문을 조정해 보세요.";
-  const lines = ["현재 조건에 맞는 추천 도구는 다음과 같습니다.", ""];
-  tools.forEach((tool, index) => lines.push(`${index + 1}. ${tool.name} : ${tool.summary}`));
-  return lines.join("\n");
+/* 로컬 AI : 설명형 답변을 세 문장 이내로 제한 */
+function getAiExplanation(content) {
+  const answer = formatAiReply(content).replace(/\s*\n+\s*/g, " ");
+  if (!answer) return "질문에 맞는 개발 방향을 정리하지 못했습니다. 목표나 현재 학습 단계를 조금 더 구체적으로 입력해 주세요.";
+  const sentences = answer.match(/[^.!?。！？]+[.!?。！？]+|[^.!?。！？]+$/g) || [];
+  return sentences.slice(0, 3).join(" ").trim();
 }
-
-/* 로컬 AI : 생성 답변과 카드 일치 확인 */
-function ensureCardMatchedAnswer(content, tools) {
-  const answer = formatAiReply(content);
-  const numberedNames = [...answer.matchAll(/^\s*\d+\.\s*([^:：\n]+)\s*[:：]/gm)].map((match) => match[1].trim());
-  const isSameOrder = numberedNames.length === tools.length && tools.every((tool, index) => numberedNames[index] === tool.name);
-  return isSameOrder ? answer : buildCardMatchedAnswer(tools);
-}
-
 /* 로컬 AI : 현재 선택 조건 안내 생성 */
 function getOllamaGuidePrompt(tools) {
   const filters = getSearchFilters();
@@ -116,10 +108,14 @@ function getOllamaGuidePrompt(tools) {
   const toolContext = getOwnedToolContext(tools);
   return `너는 개발 초보자를 위한 AI 개발 가이드의 채팅 도우미다.
 개발 도구 추천과 개발 학습 질문에 한국어로 답하라.
-도구를 추천할 때는 아래 보유 도구 데이터에 있는 이름, 설명, 버전만 근거로 사용하고 목록에 없는 도구는 새로 제안하지 마라.
-답변은 별표, 샵, 하이픈, 코드 장식 기호 같은 마크다운 표현을 절대 쓰지 말고 6문장 이내로 짧고 구체적으로 작성하라. 도구를 나열할 때는 반드시 1. 도구명 : 설명 형식의 번호 목록만 사용하고, 도구 추천은 최대 3개만 제시하라.
+도구를 언급할 때는 아래 보유 도구 데이터에 있는 이름과 특징만 근거로 사용하고 목록에 없는 도구는 새로 제안하지 마라.
+인삿말이나 제목을 붙이지 말고 객관적인 사실과 정보만 제공하라. 
+번호, 단계 제목, 글머리표, 목록 형식을 만들지 말고 답하라.
+답변은 사용자의 질문 자체에 대한 이해, 학습 방향, 선택 이유 또는 다음 행동을 중심으로 추천 이유, 방향성, 공부하면 좋을 내용을 자연스러운 답변을 2~3문장으로 작성하고 이어서 추천 도구 3개와 그 이유, 정보, 공부방법을 설명하라.
+추천 도구 카드는 답변 아래에 별도로 표시되므로 도구 목록만 반복해서 나열하지 말고, 필요한 경우 후보를 고르는 이유만 간단히 설명하라.
+별표, 샵, 하이픈, 코드 장식 기호 같은 마크다운 표현은 사용하지 마라.
 현재 조건: OS=${os}, 분야=${field}, 언어=${language}, 비용=${cost}.
-보유 도구 데이터:
+화면에 별도 카드로 표시할 수 있는 도구 데이터:
 ${toolContext}`;
 }
 /* 로컬 AI : 답변 요청 */
@@ -148,12 +144,13 @@ async function requestOllamaReply() {
       body: JSON.stringify({
         model: ollamaModel,
         messages: [{ role: "system", content: getOllamaGuidePrompt(recommendedTools) }, ...appData.ollamaMessages.slice(-8)],
-        stream: false
+        stream: false,
+        options: { temperature: 0.3, num_predict: 120 }
       })
     });
     if (!response.ok) throw new Error(`AI 응답 오류 (${response.status})`);
     const data = await response.json();
-    const answer = ensureCardMatchedAnswer(data.message?.content || "", recommendedTools);
+    const answer = getAiExplanation(data.message?.content || "");
     waiting.$message.removeClass("pending");
     waiting.$body.text(answer);
     appData.ollamaMessages.push({ role: "assistant", content: answer });

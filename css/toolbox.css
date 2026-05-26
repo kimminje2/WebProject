@@ -13,9 +13,12 @@
   font-weight: 800;
 }
 
+/* 도구 모음 : PC 고정 폭 One True Layout */
 .toolbox-layout {
+  width: 1120px;
+  margin-inline: auto;
   display: grid;
-  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  grid-template-columns: var(--sidebar-width) 862px;
   gap: var(--tab-gap);
   align-items: start;
 }

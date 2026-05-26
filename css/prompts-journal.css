@@ -212,3 +212,33 @@
   background: #edf0f4;
   font-size: 14px;
 }
+
+.journal-date-filter {
+  cursor: pointer;
+}
+
+.journal-filter-reset {
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  color: var(--blue);
+  background: var(--chip);
+  font-weight: 900;
+}
+
+.flatpickr-calendar {
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow);
+  font-family: inherit;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.selected.inRange,
+.flatpickr-day.startRange.inRange,
+.flatpickr-day.endRange.inRange {
+  border-color: var(--blue);
+  background: var(--blue);
+}
